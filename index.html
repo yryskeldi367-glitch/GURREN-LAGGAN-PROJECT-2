@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Архивы Спирали | Tengen Toppa Gurren Lagann</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,700;0,900;1,400;1,900&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'cosmic-black': '#050507',
+                        'cosmic-dark': '#0C0C10',
+                        'cosmic-card': '#14141C',
+                        'spiral-green': '#00FF66',
+                        'spiral-glow': 'rgba(0, 255, 102, 0.15)',
+                        'gurren-red': '#FF2A2A',
+                        'gurren-orange': '#FF7A00',
+                        'text-bright': '#F3F4F6',
+                        'text-muted': '#9CA3AF',
+                    },
+                    fontFamily: {
+                        'sans': ['Montserrat', 'sans-serif'],
+                        'display': ['"Space Grotesk"', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'neon-green': '0 0 20px rgba(0, 255, 102, 0.25)',
+                        'neon-red': '0 0 20px rgba(255, 42, 42, 0.25)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #050507;
+            color: #F3F4F6;
+            scroll-behavior: smooth;
+        }
+
+        .spiral-bg {
+            background-image: radial-gradient(circle at 50% 50%, rgba(0, 255, 102, 0.03) 0%, transparent 80%);
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            height: 380px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050507;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #222230;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FF2A2A;
+        }
+
+        .active-tab {
+            border-color: #FF2A2A;
+            background: linear-gradient(90deg, rgba(255, 42, 42, 0.2) 0%, transparent 100%);
+            color: #FFFFFF;
+        }
+
+        .glow-text-green {
+            text-shadow: 0 0 10px rgba(0, 255, 102, 0.5);
+        }
+
+        .glow-text-red {
+            text-shadow: 0 0 10px rgba(255, 42, 42, 0.5);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-gurren-red selection:text-white spiral-bg">
+
+    <!-- Тег аудио для фоновой музыки -->
+    <audio id="bg-music" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        <!-- Замени ссылку выше на прямой URL (.mp3) твоего любимого трека "Row Row Fight the Power", когда зальешь на хостинг -->
+    </audio>
+
+    <!-- Навигация -->
+    <nav class="fixed w-full top-0 bg-cosmic-black/90 backdrop-blur-md z-50 border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <span class="text-gurren-red font-display font-black text-2xl tracking-tighter">GURREN <span class="text-spiral-green">LAGANN</span></span>
+            </div>
+            <div class="hidden md:flex items-center space-x-8 text-xs uppercase tracking-[0.2em] font-semibold">
+                <a href="#hero" class="text-text-bright hover:text-gurren-red transition-colors">Главная</a>
+                <a href="#nexus" class="text-text-muted hover:text-spiral-green transition-colors">Нексус Меха</a>
+                <a href="#watch" class="text-text-muted hover:text-gurren-red transition-colors font-bold">Смотреть Аниме</a>
+                <a href="#analytics" class="text-text-muted hover:text-spiral-green transition-colors">Масштаб сил</a>
+                <a href="#quotes" class="text-text-muted hover:text-gurren-red transition-colors">Генератор воли</a>
+                
+                <!-- Кнопка Музыки в Навбаре -->
+                <button id="music-btn" onclick="toggleMusic()" class="flex items-center space-x-2 px-3 py-1.5 rounded-lg border border-spiral-green text-spiral-green hover:bg-spiral-green/10 transition-all duration-300">
+                    <span id="music-icon">▶</span>
+                    <span id="music-text">Включить саундтрек</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Главный Экран (Hero) -->
+    <section id="hero" class="relative min-h-screen flex items-center justify-center pt-24 overflow-hidden">
+        <div class="absolute inset-0 bg-cover bg-center opacity-25" style="background-image: url('https://upload.wikimedia.org/wikipedia/ru/a/a9/%D0%93%D1%83%D1%80%D1%80%D0%B5%D0%BD-%D0%9B%D0%B0%D0%B3%D0%B0%D0%BD%D0%BD%2C_%D0%BE%D0%B1%D1%89%D0%B5%D0%B5_%D0%B8%D0%B7%D0%BE%D0%B1%D1%80%D0%B0%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5_%D0%BF%D0%B5%D1%80%D1%81%D0%BE%D0%BD%D0%B0%D0%B6%D0%B5%D0%B9.jpg');"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-cosmic-black via-cosmic-black/85 to-transparent"></div>
+        
+        <div class="relative max-w-6xl mx-auto px-6 text-center z-10 py-12">
+            <div class="inline-flex items-center space-x-2 bg-gurren-red/10 border border-gurren-red/30 px-4 py-2 rounded-full mb-8">
+                <span class="w-2.5 h-2.5 rounded-full bg-gurren-red animate-ping"></span>
+                <span class="text-xs font-bold uppercase tracking-widest text-gurren-red">Спиральная Сила Активна</span>
+            </div>
+            
+            <div class="max-w-4xl mx-auto rounded-2xl overflow-hidden border border-white/10 shadow-2xl mb-12">
+                <img src="https://upload.wikimedia.org/wikipedia/ru/a/a9/%D0%93%D1%83%D1%80%D1%80%D0%B5%D0%BD-%D0%9B%D0%B0%D0%B3%D0%B0%D0%BD%D0%BD%2C_%D0%BE%D0%B1%D1%89%D0%B5%D0%B5_%D0%B8%D0%B7%D0%BE%D0%B1%D1%80%D0%B0%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5_%D0%BF%D0%B5%D1%80%D1%81%D0%BE%D0%BD%D0%B0%D0%B6%D0%B5%D0%B9.jpg" alt="Гуррен-Лаганн Персонажи" class="w-full h-[320px] md:h-[480px] object-cover">
+            </div>
+
+            <h1 class="text-5xl md:text-8xl font-display font-black tracking-tight leading-none mb-6">
+                ПРОНЗАЯ <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-gurren-red via-gurren-orange to-spiral-green glow-text-red">НЕБЕСА</span>
+            </h1>
+            <p class="text-lg md:text-2xl text-text-muted max-w-3xl mx-auto font-light leading-relaxed mb-10">
+                Самый детальный интерактивный справочник по мехам из легендарного шедевра <span class="text-text-bright font-semibold">Tengen Toppa Gurren Lagann</span>. Смотрите серии, чтобы разблокировать новые формы и изучить их гига-масштабы!
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#nexus" class="px-8 py-4 bg-gurren-red text-white font-bold rounded-lg tracking-wider hover:bg-red-700 hover:shadow-neon-red transition-all duration-300 uppercase text-sm">Нексус Меха</a>
+                <a href="#watch" class="px-8 py-4 bg-transparent border-2 border-spiral-green text-spiral-green font-bold rounded-lg tracking-wider hover:bg-spiral-green/10 hover:shadow-neon-green transition-all duration-300 uppercase text-sm">Смотреть Сериал</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Интерактивная Панель Меха (Mecha Nexus) -->
+    <section id="nexus" class="py-24 px-6 bg-cosmic-dark border-t border-b border-white/5">
+        <div class="max-w-7xl mx-auto">
+            
+            <div class="mb-16">
+                <span class="text-xs font-bold uppercase tracking-[0.3em] text-spiral-green block mb-3">АРХИВЫ КЛАССА «ЛИДЕР»</span>
+                <h2 class="text-4xl md:text-5xl font-display font-black text-text-bright">ФАЗЫ ЭВОЛЮЦИИ ГАНМЕНОВ</h2>
+                <p class="text-text-muted mt-4 max-w-2xl text-base">
+                    Внимание: характеристики мехов синхронизированы с вашим прогрессом. <span class="text-spiral-green font-semibold">Включайте серии в плеере ниже</span>, чтобы открыть заблокированные фазы!
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- Список мехов слева -->
+                <div class="lg:col-span-4 flex flex-col space-y-3" id="mecha-tabs">
+                    <!-- Заполняется динамически через JS -->
+                </div>
+
+                <!-- Карточка детального просмотра справа -->
+                <div class="lg:col-span-8 bg-cosmic-card rounded-2xl border border-white/10 p-6 md:p-10 shadow-2xl relative overflow-hidden" id="mecha-detail-view">
+                    <!-- Инжектируется через JS -->
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Раздел Смотреть Аниме -->
+    <section id="watch" class="py-24 px-6 bg-cosmic-black border-b border-white/5">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+                
+                <div class="lg:col-span-5 lg:sticky lg:top-28">
+                    <span class="text-xs font-bold uppercase tracking-[0.3em] text-gurren-red block mb-3">ОНЛАЙН КИНОТЕАТР</span>
+                    <h2 class="text-4xl font-display font-black text-text-bright leading-tight">СМОТРЕТЬ ГУРРЕН-ЛАГАНН</h2>
+                    <p class="text-text-muted mt-4 leading-relaxed text-sm">
+                        Клик по серии мгновенно обновляет Базу Данных Меха наверху и открывает новые эволюционные формы, соответствующие хронологии сюжета.
+                    </p>
+                    
+                    <!-- Селектор серий скроллируемый -->
+                    <div class="mt-6">
+                        <span class="text-xs font-bold uppercase text-spiral-green tracking-wider block mb-3">ВЫБОР СЕРИИ:</span>
+                        <div id="episode-grid" class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 max-h-60 overflow-y-auto pr-2 bg-cosmic-dark/50 p-3 rounded-xl border border-white/5">
+                            <!-- Заполняется из JS -->
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex items-center space-x-4">
+                        <div class="flex -space-x-3">
+                            <span class="w-10 h-10 rounded-full bg-gurren-red flex items-center justify-center font-bold text-xs border-2 border-cosmic-black">С</span>
+                            <span class="w-10 h-10 rounded-full bg-gurren-orange flex items-center justify-center font-bold text-xs border-2 border-cosmic-black">К</span>
+                            <span class="w-10 h-10 rounded-full bg-spiral-green flex items-center justify-center font-bold text-xs border-2 border-cosmic-black">В</span>
+                        </div>
+                        <p class="text-xs text-text-muted">Выбор серии автоматически сохраняется в памяти!</p>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-7 flex flex-col items-center">
+                    <div class="w-full aspect-video rounded-2xl overflow-hidden border-2 border-gurren-red shadow-neon-red bg-cosmic-card">
+                        <iframe
+                            id="video-player"
+                            width="100%"
+                            height="100%"
+                            src="https://rutube.ru/play/embed/021a65cfadd433fe2038bf149762b53a"
+                            style="border: none;"
+                            allow="clipboard-write; autoplay"
+                            allowFullScreen
+                        ></iframe>
+                    </div>
+                    <div class="w-full mt-4 text-center">
+                        <span id="current-episode-title" class="text-sm font-display font-bold uppercase tracking-widest text-text-bright bg-cosmic-card border border-white/10 px-4 py-2 rounded-lg inline-block shadow-lg">
+                            Серия 1
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Аналитический Блок: Логарифмический график размеров -->
+    <section id="analytics" class="py-24 px-6 bg-cosmic-dark border-b border-white/5">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <div class="lg:col-span-4">
+                    <span class="text-xs font-bold uppercase tracking-[0.3em] text-spiral-green block mb-3">МАСШТАБ СИЛ</span>
+                    <h2 class="text-4xl font-display font-black text-text-bright leading-tight">ОТ БУРА ДО <br>МЕТАВСЕЛЕННОЙ</h2>
+                    <p class="text-text-muted mt-6 leading-relaxed">
+                        Ни одно произведение в истории не демонстрирует столь безумного масштабирования. 
+                    </p>
+                    <p class="text-text-muted mt-4 leading-relaxed">
+                        Спиральная Энергия позволяет преодолевать любые физические барьеры. Лаганн начинается как обычный бур размером в полтора метра, а заканчивается колоссом, который превосходит наблюдаемую вселенную в разы.
+                    </p>
+                </div>
+
+                <div class="lg:col-span-8 bg-cosmic-card rounded-2xl border border-white/5 p-6 md:p-8">
+                    <h3 class="text-lg font-bold uppercase tracking-wider text-text-bright mb-6">Сравнительный график высоты мехов (Логарифмическая шкала, метры)</h3>
+                    <div class="chart-container">
+                        <canvas id="mechaScaleChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Блок Пафоса и Цитат -->
+    <section id="quotes" class="py-24 px-6 bg-cosmic-black">
+        <div class="max-w-6xl mx-auto text-center">
+            <div class="w-16 h-16 bg-gurren-red/10 border border-gurren-red/30 rounded-full flex items-center justify-center mx-auto mb-8">
+                <span class="text-gurren-red text-2xl font-bold">★</span>
+            </div>
+            <h2 class="text-3xl md:text-4xl font-display font-black text-text-bright mb-12">ГЕНЕРАТОР СПИРАЛЬНОЙ ВОЛИ</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center text-left">
+                
+                <div class="lg:col-span-5">
+                    <div class="rounded-2xl overflow-hidden border border-white/10 shadow-2xl h-80 lg:h-[400px]">
+                        <img src="https://iv.okcdn.ru/getVideoPreview?id=5233808378566&idx=1&type=39&tkn=QcJ4_gCbYb3ky_beVfXntAEwU84&fn=vid_x" alt="Битва Гуррен-Лаганна" class="w-full h-full object-cover">
+                    </div>
+                </div>
+
+                <div class="lg:col-span-7 bg-cosmic-card border border-white/10 rounded-2xl p-8 md:p-12 shadow-2xl relative min-h-[350px] flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-spiral-green uppercase tracking-[0.2em] block mb-4">Мудрость Лидеров:</span>
+                        <p id="quote-text" class="text-lg md:text-2xl font-serif italic text-text-bright leading-relaxed transition-opacity duration-300">
+                            "Магма течет в наших венах, раскаляя сердца! Безграничное слияние, Гуррен-Лаганн! Копая землю, я пронзаю небеса!"
+                        </p>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-8 border-t border-white/10 pt-6">
+                        <p id="quote-author" class="text-gurren-red uppercase tracking-widest font-bold text-sm mb-4 sm:mb-0 transition-opacity duration-300">
+                            — Камина и Симон
+                        </p>
+                        
+                        <button onclick="generateQuote()" class="px-6 py-3 bg-transparent border border-white/20 hover:border-gurren-red text-xs uppercase tracking-widest font-bold text-text-muted hover:text-white rounded-lg transition-all duration-300">
+                            Зарядиться пафосом
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Подвал -->
+    <footer class="py-12 px-6 bg-cosmic-black border-t border-white/5 text-center">
+        <p class="text-xs uppercase tracking-[0.3em] text-text-muted">
+            Разработано во имя Спирального Человечества. 2026.
+        </p>
+    </footer>
+
+    <!-- Основная логика приложения -->
+    <script>
+        // База данных серий и фильмов
+        const playlist = [
+            { name: "1", src: "https://rutube.ru/play/embed/021a65cfadd433fe2038bf149762b53a" },
+            { name: "2", src: "https://rutube.ru/play/embed/ea4356db01fcf53cd00a6b74cab74beb" },
+            { name: "3", src: "https://rutube.ru/play/embed/b65b9f053029a56414d8b805f725ec12" },
+            { name: "4", src: "https://rutube.ru/play/embed/c779c2992a27f717e07836c74e26ff65" },
+            { name: "5", src: "https://rutube.ru/play/embed/ccba20c9435b7b1dd4caa32dc8988da4" },
+            { name: "6", src: "https://rutube.ru/play/embed/8d5ff0ab79d88cb72f7084665009a663" },
+            { name: "7", src: "https://rutube.ru/play/embed/1cdebf8176441bfac92a36b180040c09" },
+            { name: "8", src: "https://rutube.ru/play/embed/ade8f3276e6312e86a9ce5bc5f4c87df" },
+            { name: "9", src: "https://rutube.ru/play/embed/90887598570d2b3df93c671aee52a7bd" },
+            { name: "10", src: "https://rutube.ru/play/embed/69c726043a79d21e8a3222ca96de7168" },
+            { name: "11", src: "https://rutube.ru/play/embed/1669a06cf2a6e05bdfce5798ce465887" },
+            { name: "12", src: "https://rutube.ru/play/embed/dea531394cf9d142de4e1f5c773b8d8c" },
+            { name: "13", src: "https://rutube.ru/play/embed/649bd21c2b789b0568b2f1a8c517d305" },
+            { name: "14", src: "https://rutube.ru/play/embed/bd931ef38bd2a351c28ad4a7327f5717" },
+            { name: "15", src: "https://rutube.ru/play/embed/7133ca0f1f207f31827e27af5c50d6cf" },
+            { name: "16", src: "https://rutube.ru/play/embed/87540c0191f819ce509fbd27709c8f15" },
+            { name: "17", src: "https://rutube.ru/play/embed/77a87a81db0380cd8ed7fca91df09096" },
+            { name: "18", src: "https://rutube.ru/play/embed/e82843cc97b61a22cd134ad41b3459f4" },
+            { name: "19", src: "https://rutube.ru/play/embed/5d2906f71a9c46c06af0a4c81bc6af85" },
+            { name: "20", src: "https://rutube.ru/play/embed/8f3f99af3d58fda815dd54aa86c1a570" },
+            { name: "21", src: "https://rutube.ru/play/embed/8c38b90c0823ac125140b92000381885" },
+            { name: "22", src: "https://rutube.ru/play/embed/bc79f7c13258563b0e9a5ae1b982f70d" },
+            { name: "23", src: "https://rutube.ru/play/embed/3087cd38d57f1e3977c54eed4d180d70" },
+            { name: "24", src: "https://rutube.ru/play/embed/d364f53d66699255a8d24422af78669e" },
+            { name: "25", src: "https://rutube.ru/play/embed/4e9c407cac73fe2b5e083332748cea7c" },
+            { name: "26", src: "https://rutube.ru/play/embed/5079713e1ba49ba8dd2c00a85c02ee55" },
+            { name: "Финал", src: "https://rutube.ru/play/embed/e7c1e3f00355b7b04f7e9b75dd62132a" },
+            { name: "Фильм", src: "https://kodikplayer.com/video/63366/159d13bcb3233132ab8735f782c25d2f/720p" }
+        ];
+
+        // База данных мехов с указанием серии, на которой они разблокируются
+        const mechas = [
+            {
+                id: "lagann",
+                name: "LAGANN",
+                title: "Лаганн",
+                unlockEpisode: 1,
+                pilot: "Симон",
+                height: "1.5 метра",
+                heightMeters: 1.5,
+                combatType: "Ассимиляция и Бурение",
+                image: "https://static.wikia.nocookie.net/gurrenlagann/images/7/71/Lagann.png/revision/latest?cb=20190107125416&path-prefix=ru",
+                desc: "Уникальный ганмен, обнаруженный Симоном в глубинах его родной деревни Джиха. Главная сила Лаганна кроется в его Спиральном ядре и способности ассимилировать любые другие технологии посредством физического бурения («Слияние Лаганна»).",
+                mechanics: "Лаганн использует ментальную энергию Симона для генерации физического твердого бура из любой точки корпуса. При соединении с другими ганменами он мгновенно берет под контроль их энергосистемы и перенастраивает их под Спиральные волны."
+            },
+            {
+                id: "gurren",
+                name: "GURREN",
+                title: "Гуррен",
+                unlockEpisode: 2,
+                pilot: "Камина / Вирал",
+                height: "15 метров",
+                heightMeters: 15,
+                combatType: "Рукопашный бой / Сила",
+                image: "https://upload.wikimedia.org/wikipedia/ru/a/a9/%D0%93%D1%83%D1%80%D1%80%D0%B5%D0%BD-%D0%9B%D0%B0%D0%B3%D0%B0%D0%BD%D0%BD%2C_%D0%BE%D0%B1%D1%89%D0%B5%D0%B5_%D0%B8%D0%B7%D0%BE%D0%B1%D1%80%D0%B0%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5_%D0%BF%D0%B5%D1%80%D1%81%D0%BE%D0%BD%D0%B0%D0%B6%D0%B5%D0%B9.jpg",
+                desc: "Ганмен, изначально принадлежавший одному из командиров зверолюдей, но отвоеванный Каминой. Был кастомизирован: Камина добавил на него фирменные гигантские солнцезащитные очки и перекрасил в агрессивный красный цвет.",
+                mechanics: "Работает как классический тяжелый штурмовик. Не имеет встроенного оружия, кроме своих кулаков и меча. Очки на груди могут отсоединяться и использоваться как огромный бумеранг-клинок, способный разрезать прочнейшую сталь зверолюдей."
+            },
+            {
+                id: "gurren_lagann",
+                name: "GURREN-LAGANN",
+                title: "Гуррен-Лаганн",
+                unlockEpisode: 3,
+                pilot: "Симон и Вирал",
+                height: "15 метров (базовый)",
+                heightMeters: 15,
+                combatType: "Универсальный Спиральный Боец",
+                image: "https://static.wikia.nocookie.net/gurrenlagann/images/d/d6/Gurren_lagann_commission_by_sharknob-d7arxsh.jpg/revision/latest/thumbnail/width/360/height/450?cb=20181029152631&path-prefix=ru",
+                desc: "Флагманский мех Команды Дыроколов. Рождается в результате невероятного слияния, когда Симон вбивает бур Лаганна в шлем Гуррена. Абсолютное воплощение девиза «Преодолевать любые преграды».",
+                mechanics: "Питается напрямую от Спиральной энергии Симона. Самая известная способность — материализация бесконечного числа гигантских буров. Финальная атака — «Giga Drill Break» — концентрирует всю Спиральную силу в один бур, который в сотни раз превышает размер самого меха."
+            },
+            {
+                id: "arc_gurren_lagann",
+                name: "ARC GURREN-LAGANN",
+                title: "Арк Гуррен-Лаганн",
+                unlockEpisode: 13,
+                pilot: "Симон и Вирал",
+                height: "5 километров",
+                heightMeters: 5000,
+                combatType: "Пространственный Прорыв",
+                image: "https://static.wikia.nocookie.net/gurrenlagann/images/1/1d/LO9to0R.png/revision/latest?cb=20181114163745&path-prefix=ru",
+                desc: "Колоссальное слияние Гуррен-Лаганна и космического линкора Арк-Гуррен. Создан в момент экстренной угрозы падения Луны на Землю.",
+                mechanics: "Мех способен физически разрывать и деформировать ткань пространства-времени. Главное оружие — удар «Burst Spinning Punch», который буквально выбивает противников за пределы текущей пространственной метрики, отправляя их в квантовое небытие."
+            },
+            {
+                id: "super_galaxy_gl",
+                name: "SUPER GALAXY GURREN-LAGANN",
+                title: "Сверхгалактический Гуррен-Лаганн",
+                unlockEpisode: 19,
+                pilot: "Симон, Вирал и Дай-Гуррен",
+                height: "Размер планеты",
+                heightMeters: 12000000,
+                combatType: "Субпространственная Аннигиляция",
+                image: "https://static.wikia.nocookie.net/gurennlagann/images/9/97/Chouginga_Gurren_Lagann.webp/revision/latest?cb=20240319050513",
+                desc: "Мега-структура планетарного масштаба, созданная путем ассимиляции Спирального Линкора «Соборная Терра». Машина способна в одиночку вести войну против целых флотилий Антиспиральщиков.",
+                mechanics: "Основан плечевыми пушками, способными стрелять сквозь временные оси. Мех может обнаруживать противников в параллельных вселенных и мгновенно поражать их с помощью субпространственных буров."
+            },
+            {
+                id: "super_tengen_toppa_gl",
+                name: "SUPER TENGEN TOPPA G.",
+                title: "Супер Тенген Топпа Гуррен-Лаганн",
+                unlockEpisode: 27,
+                pilot: "Симон",
+                height: "52.8 миллиарда световых лет",
+                heightMeters: 5.0e26,
+                combatType: "Абсолютная Мультивселенская Сила",
+                image: "https://images.steamusercontent.com/ugc/848220114018407130/4AE03224733721C9E2652BCCFB711FE3DF44D4DC/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false",
+                desc: "Абсолютная финальная форма, принимающая образ Симона в плаще из чистой энергии. Самый большой мех в истории фантастики.",
+                mechanics: "Его сила стремится к бесконечности. Финальный Супер-гига бур превосходит размеры наблюдаемой Вселенной во много раз. Атака способна стереть мультивселенную Антиспирали и переписать базовые константы реальности."
+            }
+        ];
+
+        const quotes = [
+            { text: "Верь в мою веру в тебя!", author: "Камина" },
+            { text: "Мой бур создан для того, чтобы пронзить небеса!", author: "Симон" },
+            { text: "Мы движемся вперед с каждым оборотом бура! Это и есть Спиральная сила!", author: "Симон" },
+            { text: "За кого вы нас держите?!", author: "Команда Дай-Гуррен" },
+            { text: "Если на пути встанет стена — мы её разрушим! Если нет дороги — мы её проложим!", author: "Камина" }
+        ];
+
+        let currentMechaId = "lagann";
+
+        // Функция включения/выключения музыки
+        function toggleMusic() {
+            const music = document.getElementById("bg-music");
+            const icon = document.getElementById("music-icon");
+            const text = document.getElementById("music-text");
+            const btn = document.getElementById("music-btn");
+
+            if (music.paused) {
+                music.play().catch(error => {
+                    console.log("Браузер заблокировал автовоспроизведение до клика:", error);
+                });
+                icon.innerText = "⏸";
+                text.innerText = "Поставить на паузу";
+                btn.classList.remove("border-spiral-green", "text-spiral-green");
+                btn.classList.add("border-gurren-red", "text-gurren-red", "bg-gurren-red/10");
+            } else {
+                music.pause();
+                icon.innerText = "▶";
+                text.innerText = "Включить саундтрек";
+                btn.classList.remove("border-gurren-red", "text-gurren-red", "bg-gurren-red/10");
+                btn.classList.add("border-spiral-green", "text-spiral-green");
+            }
+        }
+
+        // Получение текущего прогресса пользователя
+        function getUserProgress() {
+            return parseInt(localStorage.getItem("gl_watched_episode")) || 1;
+        }
+
+        // Проверка: разблокирован ли конкретный мех
+        function isMechaUnlocked(mecha) {
+            return getUserProgress() >= mecha.unlockEpisode;
+        }
+
+        // Обновление вкладок мехов слева
+        function renderTabs() {
+            const container = document.getElementById("mecha-tabs");
+            container.innerHTML = "";
+            
+            mechas.forEach((mecha, idx) => {
+                const unlocked = isMechaUnlocked(mecha);
+                const button = document.createElement("button");
+                
+                button.className = `w-full text-left p-4 rounded-xl border border-white/5 transition-all duration-300 flex items-center justify-between ${mecha.id === currentMechaId ? 'active-tab shadow-neon-red' : 'hover:bg-white/5 text-text-muted'}`;
+                
+                const displayName = unlocked ? mecha.name : "????? [ЗАБЛОКИРОВАНО]";
+                const indicatorColor = unlocked ? "text-spiral-green" : "text-white/20";
+                const indicatorIcon = unlocked ? "✓" : "🔒";
+
+                button.innerHTML = `
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-bold tracking-widest text-gurren-red uppercase">ФАЗА 0${idx + 1}</span>
+                        <span class="font-display font-bold text-sm tracking-wide mt-1">${displayName}</span>
+                    </div>
+                    <span class="text-xs ${indicatorColor} font-mono">${indicatorIcon}</span>
+                `;
+                
+                button.onclick = () => {
+                    currentMechaId = mecha.id;
+                    renderTabs();
+                    renderDetail();
+                };
+                
+                container.appendChild(button);
+            });
+        }
+
+        // Обновление экрана детального просмотра справа
+        function renderDetail() {
+            const container = document.getElementById("mecha-detail-view");
+            const mecha = mechas.find(m => m.id === currentMechaId);
+            
+            if (!mecha) return;
+
+            container.style.opacity = 0;
+            container.style.transform = "translateY(15px)";
+            container.style.transition = "all 0.3s ease-out";
+
+            const unlocked = isMechaUnlocked(mecha);
+
+            setTimeout(() => {
+                if (unlocked) {
+                    container.innerHTML = `
+                        <div class="absolute -right-16 -top-16 text-white/[0.015] font-display font-black text-[220px] select-none pointer-events-none">GL</div>
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 relative z-10">
+                            <div class="md:col-span-5">
+                                <div class="relative rounded-xl overflow-hidden border border-white/10 group h-80 md:h-full min-h-[250px] bg-cosmic-black flex items-center justify-center">
+                                    <img src="${mecha.image}" alt="${mecha.title}" 
+                                         class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+                                         onerror="this.src='https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=400&q=80';">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-cosmic-black/70 via-transparent to-transparent"></div>
+                                    <div class="absolute bottom-4 left-4 right-4">
+                                        <span class="text-[10px] bg-gurren-red text-white font-bold px-3 py-1 rounded-full uppercase tracking-widest">${mecha.combatType}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="md:col-span-7 flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center space-x-3 mb-2">
+                                        <span class="w-2 h-2 rounded-full bg-spiral-green animate-pulse"></span>
+                                        <span class="text-xs font-mono tracking-widest text-spiral-green uppercase">Доступ получен на ${mecha.unlockEpisode} серии</span>
+                                    </div>
+                                    <h3 class="text-3xl md:text-4xl font-display font-black tracking-tight text-white mb-4">${mecha.title}</h3>
+                                    <div class="grid grid-cols-2 gap-4 mb-6 bg-white/5 p-4 rounded-xl border border-white/5 text-sm">
+                                        <div>
+                                            <span class="text-text-muted text-xs uppercase tracking-wider block">Пилот:</span>
+                                            <strong class="text-white font-semibold">${mecha.pilot}</strong>
+                                        </div>
+                                        <div>
+                                            <span class="text-text-muted text-xs uppercase tracking-wider block">Высота / Масштаб:</span>
+                                            <strong class="text-white font-semibold">${mecha.height}</strong>
+                                        </div>
+                                    </div>
+                                    <p class="text-text-muted leading-relaxed mb-6 text-sm md:text-base">${mecha.desc}</p>
+                                </div>
+                                <div class="border-t border-white/10 pt-6">
+                                    <h4 class="text-xs font-bold text-gurren-red uppercase tracking-widest mb-2">Принцип работы и вооружение:</h4>
+                                    <p class="text-xs text-text-muted leading-relaxed italic">${mecha.mechanics}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center text-center py-20 relative z-10">
+                            <div class="text-6xl mb-6">🔒</div>
+                            <h3 class="text-2xl font-display font-black text-gurren-red uppercase tracking-wider mb-2">Данные зашифрованы</h3>
+                            <p class="text-text-muted max-w-md text-sm md:text-base">
+                                Эта эволюционная фаза скрыта квантовыми Спиральными потоками. Чтобы разблокировать её изображение и досье, дойдите до <span class="text-spiral-green font-bold">${mecha.unlockEpisode}-й серии</span> в онлайн-кинотеатре ниже!
+                            </p>
+                            <a href="#watch" class="mt-6 px-6 py-2.5 bg-white/5 border border-white/10 text-xs font-bold uppercase tracking-wider text-text-bright rounded-lg hover:border-gurren-red hover:bg-gurren-red/10 transition-all">
+                                Перейти к просмотру
+                            </a>
+                        </div>
+                    `;
+                }
+                container.style.opacity = 1;
+                container.style.transform = "translateY(0)";
+            }, 150);
+        }
+
+        // Построение панели выбора серий
+        function buildEpisodeSelector() {
+            const container = document.getElementById("episode-grid");
+            container.innerHTML = "";
+
+            playlist.forEach((item, index) => {
+                const btn = document.createElement("button");
+                if (item.name === "Финал" || item.name === "Фильм") {
+                    btn.className = "col-span-2 py-2 text-[10px] font-bold uppercase rounded border border-gurren-red bg-gurren-red/10 text-white hover:bg-gurren-red transition-all text-center tracking-wider";
+                } else {
+                    btn.className = "py-2 text-xs font-bold font-mono rounded border border-white/10 text-text-muted hover:border-spiral-green hover:text-white transition-all text-center";
+                }
+                
+                btn.innerText = item.name;
+                btn.id = `ep-btn-${index}`;
+                
+                btn.onclick = () => {
+                    document.getElementById("video-player").src = item.src;
+                    
+                    const titlePrefix = (item.name === "Финал" || item.name === "Фильм") ? "" : "Серия ";
+                    document.getElementById("current-episode-title").innerText = `${titlePrefix}${item.name}`;
+
+                    let numericEpisode = 1;
+                    if (item.name === "Финал") numericEpisode = 27;
+                    else if (item.name === "Фильм") numericEpisode = 28;
+                    else numericEpisode = parseInt(item.name);
+
+                    if (numericEpisode > getUserProgress()) {
+                        localStorage.setItem("gl_watched_episode", numericEpisode);
+                    }
+
+                    renderTabs();
+                    renderDetail();
+
+                    playlist.forEach((_, i) => {
+                        const b = document.getElementById(`ep-btn-${i}`);
+                        if (b) b.classList.remove("border-spiral-green", "text-spiral-green", "bg-spiral-green/10");
+                    });
+                    btn.classList.add("border-spiral-green", "text-spiral-green", "bg-spiral-green/10");
+                };
+
+                container.appendChild(btn);
+            });
+
+            const firstBtn = document.getElementById("ep-btn-0");
+            if (firstBtn) firstBtn.classList.add("border-spiral-green", "text-spiral-green", "bg-spiral-green/10");
+        }
+
+        function generateQuote() {
+            const quoteText = document.getElementById("quote-text");
+            const quoteAuthor = document.getElementById("quote-author");
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            
+            quoteText.style.opacity = 0;
+            quoteAuthor.style.opacity = 0;
+            
+            setTimeout(() => {
+                quoteText.innerText = `"${randomQuote.text}"`;
+                quoteAuthor.innerText = `— ${randomQuote.author}`;
+                quoteText.style.opacity = 1;
+                quoteAuthor.style.opacity = 1;
+            }, 200);
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('mechaScaleChart').getContext('2d');
+            const labels = mechas.map(m => m.name);
+            const heights = mechas.map(m => m.heightMeters);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Логарифмический масштаб (метры)',
+                        data: heights,
+                        borderColor: '#00FF66',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#FF2A2A',
+                        pointBorderColor: '#FFFFFF',
+                        pointHoverRadius: 8,
+                        pointRadius: 6,
+                        fill: true,
+                        backgroundColor: 'rgba(0, 255, 102, 0.05)',
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#121216',
+                            titleFont: { family: 'Montserrat', size: 14, weight: 'bold' },
+                            bodyFont: { family: 'Montserrat', size: 12 },
+                            borderColor: '#FF2A2A',
+                            borderWidth: 1,
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    const val = context.raw;
+                                    if (val >= 9.46e15) return ` Высота: ${(val / 9.46e15).toFixed(1)} св. лет`;
+                                    if (val >= 1000) return ` Высота: ${(val / 1000).toLocaleString()} км`;
+                                    return ` Высота: ${val} м`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'logarithmic',
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: {
+                                color: '#9CA3AF',
+                                font: { family: 'Montserrat' },
+                                callback: function(value) {
+                                    if ([1, 10, 1000, 1e6, 1e12, 1e18, 1e24, 1e26].includes(value)) {
+                                        return '10^' + Math.log10(value) + ' м';
+                                    }
+                                    return null;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#9CA3AF', font: { family: 'Space Grotesk', size: 10 }, maxRotation: 45, minRotation: 45 }
+                        }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            renderTabs();
+            renderDetail();
+            initChart();
+            buildEpisodeSelector();
+        });
+    </script>
+</body>
+</html>
