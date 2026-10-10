@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Архивы Спирали | Tengen Toppa Gurren Lagann — Абсолютный Аниме-Портал</title>
+    <meta name="description" content="Интерактивный портал по вселенной Tengen Toppa Gurren Lagann: эволюция мехов, онлайн-кинотеатр, масштаб сил, официальные базы данных, сообщества и рекомендации похожих аниме шедевров.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,700&family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;0,900;1,400;1,900&family=Orbitron:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'cosmic-black': '#040406',
+                        'cosmic-dark': '#09090E',
+                        'cosmic-card': '#111119',
+                        'cosmic-border': 'rgba(255, 255, 255, 0.08)',
+                        'spiral-green': '#00FF66',
+                        'spiral-glow': 'rgba(0, 255, 102, 0.2)',
+                        'gurren-red': '#FF2A2A',
+                        'gurren-orange': '#FF7A00',
+                        'kamina-blue': '#00D2FF',
+                        'text-bright': '#F9FAFB',
+                        'text-muted': '#9CA3AF',
+                    },
+                    fontFamily: {
+                        'sans': ['Montserrat', 'sans-serif'],
+                        'display': ['Orbitron', 'Space Grotesk', 'sans-serif'],
+                        'tech': ['Chakra Petch', 'monospace'],
+                    },
+                    boxShadow: {
+                        'neon-green': '0 0 25px rgba(0, 255, 102, 0.35)',
+                        'neon-red': '0 0 25px rgba(255, 42, 42, 0.4)',
+                        'neon-orange': '0 0 25px rgba(255, 122, 0, 0.4)',
+                        'neon-blue': '0 0 25px rgba(0, 210, 255, 0.4)',
+                    },
+                    animation: {
+                        'spin-slow': 'spin 20s linear infinite',
+                        'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%, 100%': { opacity: 1, filter: 'drop-shadow(0 0 15px rgba(255, 42, 42, 0.6))' },
+                            '50%': { opacity: 0.8, filter: 'drop-shadow(0 0 25px rgba(0, 255, 102, 0.7))' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #040406;
+            color: #F9FAFB;
+            overflow-x: hidden;
+        }
+
+        /* Spiral Canvas Background */
+        #spiral-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.65;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #040406;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1F2430;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FF2A2A;
+            box-shadow: 0 0 10px #FF2A2A;
+        }
+
+        /* Glow effects */
+        .glow-green {
+            text-shadow: 0 0 12px rgba(0, 255, 102, 0.6), 0 0 30px rgba(0, 255, 102, 0.2);
+        }
+        .glow-red {
+            text-shadow: 0 0 12px rgba(255, 42, 42, 0.7), 0 0 35px rgba(255, 42, 42, 0.3);
+        }
+        .glow-orange {
+            text-shadow: 0 0 12px rgba(255, 122, 0, 0.7);
+        }
+
+        /* Active Mecha Tab */
+        .active-tab {
+            border-color: #FF2A2A !important;
+            background: linear-gradient(90deg, rgba(255, 42, 42, 0.25) 0%, rgba(20, 20, 30, 0.8) 100%) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 0 20px rgba(255, 42, 42, 0.3);
+        }
+
+        /* Glassmorphism card */
+        .glass-card {
+            background: rgba(17, 17, 25, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-card:hover {
+            border-color: rgba(255, 42, 42, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.7), 0 0 25px rgba(255, 42, 42, 0.15);
+        }
+
+        /* Giga Drill Screen Shake */
+        .screen-shake {
+            animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-3px, 0, 0) rotate(-0.5deg); }
+            20%, 80% { transform: translate3d(5px, 0, 0) rotate(0.5deg); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0) rotate(-1deg); }
+            40%, 60% { transform: translate3d(6px, 0, 0) rotate(1deg); }
+        }
+
+        /* Giga Drill Flash Overlay */
+        #giga-flash {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle, rgba(0, 255, 102, 0.6) 0%, rgba(255, 42, 42, 0.8) 60%, rgba(0,0,0,0.9) 100%);
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s ease-out;
+        }
+        #giga-flash.active {
+            opacity: 1;
+        }
+
+        /* Kamina Shades Badge */
+        .kamina-shades {
+            clip-path: polygon(0% 0%, 100% 0%, 82% 100%, 18% 100%);
+        }
+    </style>
+</head>
+<body class="selection:bg-gurren-red selection:text-white font-sans antialiased relative">
+
+    <!-- Фоновый интерактивный холст со спиральной галактикой -->
+    <canvas id="spiral-canvas"></canvas>
+
+    <!-- Оверлей вспышки для ультимейта "Giga Drill Break" -->
+    <div id="giga-flash" aria-hidden="true"></div>
+
+    <!-- Всплывающее уведомление (Toast) -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 bg-cosmic-card border border-spiral-green text-white px-5 py-3 rounded-xl shadow-neon-green transform translate-y-24 opacity-0 transition-all duration-300 flex items-center space-x-3 pointer-events-none">
+        <span class="text-spiral-green text-lg"><i class="fa-solid fa-bolt"></i></span>
+        <span id="toast-message" class="text-xs font-tech font-bold uppercase tracking-wider">Спиральная сила активирована!</span>
+    </div>
+
+    <!-- Аудиоплеер (Фоновая музыка) -->
+    <audio id="bg-music" loop preload="none">
+        <!-- Основной саундтрек: Row Row Fight The Power -->
+        <source src="Tengen_Toppa_Gurren_Lagann_-_Row_Row_Fight_The_Power_(SkySound7.com).mp3" type="audio/mpeg">
+        <!-- Резервный саундтрек онлайн -->
+        <source src="https://ia801503.us.archive.org/15/items/audio-libera-me-from-hell/libera-me-from-hell.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- =========================================================================
+         НАВИГАЦИЯ (NAVBAR)
+         ========================================================================= -->
+    <nav class="fixed w-full top-0 bg-cosmic-black/90 backdrop-blur-md z-50 border-b border-white/10 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex justify-between items-center">
+            
+            <!-- Логотип -->
+            <a href="#hero" class="flex items-center space-x-3 group">
+                <div class="w-10 h-7 bg-gradient-to-r from-gurren-red to-gurren-orange flex items-center justify-center rounded text-black font-black text-xs kamina-shades shadow-neon-red group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-fire text-white text-xs"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-gurren-red font-display font-black text-xl sm:text-2xl tracking-tighter leading-none group-hover:text-white transition-colors">
+                        GURREN <span class="text-spiral-green">LAGANN</span>
+                    </span>
+                    <span class="text-[9px] font-tech font-bold uppercase tracking-[0.25em] text-text-muted">АРХИВЫ СПИРАЛИ</span>
+                </div>
+            </a>
+
+            <!-- Десктоп Меню -->
+            <div class="hidden lg:flex items-center space-x-7 text-xs uppercase tracking-[0.18em] font-tech font-bold">
+                <a href="#hero" class="text-text-bright hover:text-gurren-red transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-home text-[10px]"></i> Главная
+                </a>
+                <a href="#nexus" class="text-text-muted hover:text-spiral-green transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-robot text-[10px]"></i> Нексус Меха
+                </a>
+                <a href="#watch" class="text-text-muted hover:text-gurren-red transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-play text-[10px]"></i> Смотреть
+                </a>
+                <a href="#anime-hub" class="text-spiral-green hover:text-white transition-colors flex items-center gap-1.5 border border-spiral-green/40 px-2.5 py-1 rounded-md bg-spiral-green/10 shadow-neon-green">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Аниме-Порталы
+                </a>
+                <a href="#analytics" class="text-text-muted hover:text-spiral-green transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-chart-line text-[10px]"></i> Масштаб
+                </a>
+                <a href="#quotes" class="text-text-muted hover:text-gurren-red transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-quote-right text-[10px]"></i> Воля
+                </a>
+
+                <!-- Кнопка Музыки -->
+                <button id="music-btn" onclick="toggleMusic()" class="flex items-center space-x-2 px-3 py-1.5 rounded-lg border border-spiral-green text-spiral-green hover:bg-spiral-green/15 transition-all duration-300">
+                    <span id="music-icon"><i class="fa-solid fa-play"></i></span>
+                    <span id="music-text" class="text-[11px]">Саундтрек</span>
+                </button>
+            </div>
+
+            <!-- Правые кнопки: Мобильный бургер & Кнопка Гига-Бур -->
+            <div class="flex items-center space-x-3">
+                <button onclick="triggerGigaDrill()" class="px-3 sm:px-4 py-1.5 bg-gradient-to-r from-gurren-red to-gurren-orange text-white text-xs font-display font-black uppercase tracking-wider rounded-lg shadow-neon-red hover:brightness-125 transition-all flex items-center gap-2" title="Активировать силу Спирали">
+                    <i class="fa-solid fa-bolt text-spiral-green"></i>
+                    <span class="hidden sm:inline">ГИГА БУР</span>
+                </button>
+                <button id="burger-btn" onclick="toggleMobileMenu()" class="lg:hidden p-2 text-text-muted hover:text-white text-lg focus:outline-none" aria-label="Открыть мобильное меню">
+                    <i class="fa-solid fa-bars" id="burger-icon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Выдвижное мобильное меню -->
+        <div id="mobile-menu" class="lg:hidden hidden bg-cosmic-black/95 border-b border-white/10 px-6 py-6 transition-all duration-300">
+            <div class="flex flex-col space-y-4 text-sm font-tech font-bold uppercase tracking-wider">
+                <a href="#hero" onclick="toggleMobileMenu()" class="text-text-bright hover:text-gurren-red flex items-center gap-2 py-1"><i class="fa-solid fa-home"></i> Главная</a>
+                <a href="#nexus" onclick="toggleMobileMenu()" class="text-text-muted hover:text-spiral-green flex items-center gap-2 py-1"><i class="fa-solid fa-robot"></i> Нексус Меха</a>
+                <a href="#watch" onclick="toggleMobileMenu()" class="text-text-muted hover:text-gurren-red flex items-center gap-2 py-1"><i class="fa-solid fa-play"></i> Смотреть Аниме</a>
+                <a href="#anime-hub" onclick="toggleMobileMenu()" class="text-spiral-green hover:text-white flex items-center gap-2 py-1"><i class="fa-solid fa-globe"></i> Внешние Порталы и Базы</a>
+                <a href="#analytics" onclick="toggleMobileMenu()" class="text-text-muted hover:text-spiral-green flex items-center gap-2 py-1"><i class="fa-solid fa-chart-line"></i> Масштаб Сил</a>
+                <a href="#quotes" onclick="toggleMobileMenu()" class="text-text-muted hover:text-gurren-red flex items-center gap-2 py-1"><i class="fa-solid fa-quote-right"></i> Генератор Воли</a>
+                <div class="pt-3 border-t border-white/10 flex items-center justify-between">
+                    <span class="text-xs text-text-muted">Фоновый саундтрек:</span>
+                    <button onclick="toggleMusic()" class="px-3 py-1.5 border border-spiral-green text-spiral-green rounded text-xs">
+                        Музыка ▶/⏸
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- =========================================================================
+         ГЛАВНЫЙ ЭКРАН (HERO SECTION)
+         ========================================================================= -->
+    <section id="hero" class="relative min-h-screen flex items-center justify-center pt-24 pb-16 overflow-hidden z-10">
+        <!-- Градиенты и бэкграунд -->
+        <div class="absolute inset-0 bg-cover bg-center opacity-20 filter blur-[1px]" style="background-image: url('https://upload.wikimedia.org/wikipedia/ru/a/a9/%D0%93%D1%83%D1%80%D1%80%D0%B5%D0%BD-%D0%9B%D0%B0%D0%B3%D0%B0%D0%BD%D0%BD%2C_%D0%BE%D0%B1%D1%89%D0%B5%D0%B5_%D0%B8%D0%B7%D0%BE%D0%B1%D1%80%D0%B0%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5_%D0%BF%D0%B5%D1%80%D1%81%D0%BE%D0%BD%D0%B0%D0%B6%D0%B5%D0%B9.jpg');"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-cosmic-black via-cosmic-black/85 to-transparent"></div>
+        <div class="absolute inset-0 bg-radial from-transparent via-cosmic-black/70 to-cosmic-black"></div>
+
+        <div class="relative max-w-6xl mx-auto px-6 text-center z-10 py-12">
+            
+            <!-- Статус Спиральной Силы -->
+            <div class="inline-flex items-center space-x-3 bg-cosmic-card border border-gurren-red/40 px-5 py-2 rounded-full mb-8 shadow-neon-red">
+                <span class="w-3 h-3 rounded-full bg-gurren-red animate-ping"></span>
+                <span class="text-xs font-tech font-bold uppercase tracking-widest text-gurren-red">
+                    СПИРАЛЬНЫЙ УРОВЕНЬ: <span class="text-spiral-green font-mono">INFINITY ∞</span>
+                </span>
+            </div>
+
+            <!-- Главный постер аниме -->
+            <div class="max-w-4xl mx-auto rounded-3xl overflow-hidden border-2 border-white/10 shadow-2xl mb-10 relative group">
+                <img src="https://upload.wikimedia.org/wikipedia/ru/a/a9/%D0%93%D1%83%D1%80%D1%80%D0%B5%D0%BD-%D0%9B%D0%B0%D0%B3%D0%B0%D0%BD%D0%BD%2C_%D0%BE%D0%B1%D1%89%D0%B5%D0%B5_%D0%B8%D0%B7%D0%BE%D0%B1%D1%80%D0%B0%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5_%D0%BF%D0%B5%D1%80%D1%81%D0%BE%D0%BD%D0%B0%D0%B6%D0%B5%D0%B9.jpg" 
+                     alt="Гуррен-Лаганн Персонажи" 
+                     class="w-full h-[320px] md:h-[460px] object-cover group-hover:scale-105 transition-transform duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-cosmic-black via-transparent to-transparent opacity-80"></div>
+                
+                <!-- Бейджи поверх постера -->
+                <div class="absolute bottom-4 left-4 right-4 flex flex-wrap justify-between items-center gap-3">
+                    <div class="flex items-center space-x-2 bg-black/70 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-white/10 text-xs">
+                        <i class="fa-solid fa-star text-gurren-orange"></i>
+                        <span class="font-bold text-white">Рейтинг MAL: 8.64 / 10</span>
+                        <span class="text-text-muted">(#48 в топе всех времен)</span>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-black/70 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-white/10 text-xs">
+                        <i class="fa-solid fa-tv text-spiral-green"></i>
+                        <span class="font-bold text-spiral-green">27 Серий + 2 Фильма</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Главный титул -->
+            <h1 class="text-4xl sm:text-6xl md:text-8xl font-display font-black tracking-tight leading-none mb-6">
+                ПРОНЗАЯ <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-gurren-red via-gurren-orange to-spiral-green glow-red">
+                    НЕБЕСА!
+                </span>
+            </h1>
+
+            <p class="text-base sm:text-xl md:text-2xl text-text-muted max-w-3xl mx-auto font-light leading-relaxed mb-10">
+                Интерактивный мульти-портал по культовому шедевру студии <strong class="text-text-bright">Gainax / Trigger</strong>. Изучайте квантовую эволюцию мехов, смотрите сериал, переходите на ведущие аниме-базы и открывайте родственные шедевры!
+            </p>
+
+            <!-- Основные кнопки действий -->
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#nexus" class="px-7 py-4 bg-gradient-to-r from-gurren-red to-red-700 text-white font-tech font-bold rounded-xl tracking-wider hover:shadow-neon-red hover:scale-105 transition-all duration-300 uppercase text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>Нексус Меха</span>
+                </a>
+                <a href="#watch" class="px-7 py-4 bg-transparent border-2 border-spiral-green text-spiral-green font-tech font-bold rounded-xl tracking-wider hover:bg-spiral-green/10 hover:shadow-neon-green hover:scale-105 transition-all duration-300 uppercase text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-play"></i>
+                    <span>Смотреть Сериал</span>
+                </a>
+                <a href="#anime-hub" class="px-7 py-4 bg-cosmic-card border border-white/20 text-white font-tech font-bold rounded-xl tracking-wider hover:border-gurren-orange hover:shadow-neon-orange hover:scale-105 transition-all duration-300 uppercase text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-compass text-gurren-orange"></i>
+                    <span>Аниме-Хаб & Ссылки</span>
+                </a>
+            </div>
+
+            <!-- Инфо-полоса внизу Hero -->
+            <div class="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto text-left">
+                <div class="glass-card p-4 rounded-xl border border-white/5">
+                    <span class="text-[10px] font-tech font-bold text-text-muted uppercase block">РЕЖИССЕР</span>
+                    <span class="text-sm font-bold text-white">Хироюки Имаиси</span>
+                </div>
+                <div class="glass-card p-4 rounded-xl border border-white/5">
+                    <span class="text-[10px] font-tech font-bold text-text-muted uppercase block">СТУДИЯ</span>
+                    <span class="text-sm font-bold text-spiral-green">Gainax / Trigger</span>
+                </div>
+                <div class="glass-card p-4 rounded-xl border border-white/5">
+                    <span class="text-[10px] font-tech font-bold text-text-muted uppercase block">ЖАНР</span>
+                    <span class="text-sm font-bold text-white">Меха, Сёнэн, Эпик</span>
+                </div>
+                <div class="glass-card p-4 rounded-xl border border-white/5">
+                    <span class="text-[10px] font-tech font-bold text-text-muted uppercase block">КУЛЬТОВЫЙ ДЕВИЗ</span>
+                    <span class="text-sm font-bold text-gurren-red">«Row Row Fight Power!»</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         ИНТЕРАКТИВНЫЙ НЕКСУС МЕХА (MECHA NEXUS)
+         ========================================================================= -->
+    <section id="nexus" class="py-24 px-6 bg-cosmic-dark border-t border-b border-white/5 relative z-10">
+        <div class="max-w-7xl mx-auto">
+            
+            <div class="mb-14">
+                <div class="inline-flex items-center space-x-2 text-spiral-green text-xs font-tech font-bold uppercase tracking-[0.25em] mb-3">
+                    <i class="fa-solid fa-microchip"></i>
+                    <span>АРХИВЫ КЛАССА «ЛИДЕР»</span>
+                </div>
+                <h2 class="text-3xl sm:text-5xl font-display font-black text-text-bright">
+                    ФАЗЫ ЭВОЛЮЦИИ <span class="text-gurren-red">ГАНМЕНОВ</span>
+                </h2>
+                <p class="text-text-muted mt-3 max-w-2xl text-sm sm:text-base">
+                    Характеристики и визуальные формы мехов синхронизированы с вашим прогрессом. <strong class="text-spiral-green">Выбирайте серии в онлайн-кинотеатре</strong>, чтобы снять квантовую блокировку с высших сущностей!
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- Список мехов слева -->
+                <div class="lg:col-span-4 flex flex-col space-y-3" id="mecha-tabs">
+                    <!-- Заполняется динамически через JS -->
+                </div>
+
+                <!-- Карточка детального просмотра справа -->
+                <div class="lg:col-span-8 bg-cosmic-card rounded-2xl border border-white/10 p-6 md:p-10 shadow-2xl relative overflow-hidden min-h-[480px]" id="mecha-detail-view">
+                    <!-- Инжектируется через JS -->
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         ОНЛАЙН-КИНОТЕАТР (WATCH SECTION)
+         ========================================================================= -->
+    <section id="watch" class="py-24 px-6 bg-cosmic-black border-b border-white/5 relative z-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+                
+                <div class="lg:col-span-5 lg:sticky lg:top-24">
+                    <div class="inline-flex items-center space-x-2 text-gurren-red text-xs font-tech font-bold uppercase tracking-[0.25em] mb-3">
+                        <i class="fa-solid fa-film"></i>
+                        <span>ОНЛАЙН КИНОТЕАТР СПИРАЛИ</span>
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl font-display font-black text-text-bright leading-tight">
+                        ХРОНИКА БИТВ
+                    </h2>
+                    <p class="text-text-muted mt-3 leading-relaxed text-sm">
+                        Клик по любой серии переключает плеер и автоматически сохраняет прогресс в локальную память браузера, разблокируя новые фазы в Нексусе выше!
+                    </p>
+                    
+                    <!-- Селектор серий -->
+                    <div class="mt-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-tech font-bold uppercase text-spiral-green tracking-wider">ВЫБОР ЭПИЗОДА:</span>
+                            <span class="text-[10px] text-text-muted font-mono" id="progress-indicator">Прогресс: 1/28</span>
+                        </div>
+                        <div id="episode-grid" class="grid grid-cols-4 sm:grid-cols-6 gap-2 max-h-64 overflow-y-auto pr-2 bg-cosmic-dark/70 p-3 rounded-2xl border border-white/5">
+                            <!-- Заполняется из JS -->
+                        </div>
+                    </div>
+
+                    <!-- Быстрые внешние ссылки на плееры -->
+                    <div class="mt-6 p-4 rounded-xl bg-white/5 border border-white/5 text-xs text-text-muted space-y-2">
+                        <span class="font-bold text-white block">Не воспроизводится встроенный плеер?</span>
+                        <div class="flex flex-wrap gap-2">
+                            <a href="https://jut.su/gurren-lagann/" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 bg-spiral-green/10 text-spiral-green border border-spiral-green/30 rounded-lg font-bold hover:bg-spiral-green hover:text-black transition-colors flex items-center gap-1.5">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Смотреть на Jut.su
+                            </a>
+                            <a href="https://animego.me/anime/gurren-lagann-534" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 bg-gurren-red/10 text-gurren-red border border-gurren-red/30 rounded-lg font-bold hover:bg-gurren-red hover:text-white transition-colors flex items-center gap-1.5">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Смотреть на AnimeGO
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Видеоплеер -->
+                <div class="lg:col-span-7 flex flex-col items-center">
+                    <div class="w-full aspect-video rounded-2xl overflow-hidden border-2 border-gurren-red shadow-neon-red bg-cosmic-card relative">
+                        <iframe
+                            id="video-player"
+                            width="100%"
+                            height="100%"
+                            src="https://rutube.ru/play/embed/021a65cfadd433fe2038bf149762b53a"
+                            style="border: none;"
+                            allow="clipboard-write; autoplay; fullscreen"
+                            allowFullScreen
+                        ></iframe>
+                    </div>
+                    <div class="w-full mt-4 flex items-center justify-between flex-wrap gap-2">
+                        <span id="current-episode-title" class="text-sm font-tech font-bold uppercase tracking-widest text-text-bright bg-cosmic-card border border-white/10 px-4 py-2 rounded-xl shadow-lg">
+                            Серия 1: Пронзи небо своим буром!
+                        </span>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="prevEpisode()" class="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs hover:border-spiral-green transition-all" title="Предыдущая серия">
+                                <i class="fa-solid fa-backward-step"></i> Пред.
+                            </button>
+                            <button onclick="nextEpisode()" class="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs hover:border-spiral-green transition-all" title="Следующая серия">
+                                След. <i class="fa-solid fa-forward-step"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         НОВЫЙ БОЛЬШОЙ РАЗДЕЛ: МУЛЬТИВЕРС-ХАБ И ВНЕШНИЕ ССЫЛКИ НА АНИМЕ (ANIME HUB)
+         «Сайт, который ведет в бездну аниме!»
+         ========================================================================= -->
+    <section id="anime-hub" class="py-24 px-6 bg-cosmic-dark border-b border-white/5 relative z-10">
+        <div class="max-w-7xl mx-auto">
+            
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <div class="inline-flex items-center space-x-2 bg-spiral-green/10 border border-spiral-green/40 px-4 py-1.5 rounded-full mb-4">
+                    <i class="fa-solid fa-compass text-spiral-green"></i>
+                    <span class="text-xs font-tech font-bold uppercase tracking-widest text-spiral-green">КВАНТОВЫЙ ПОРТАЛ В СЕТЬ</span>
+                </div>
+                <h2 class="text-3xl sm:text-5xl font-display font-black text-text-bright mb-4">
+                    МУЛЬТИВЕРС <span class="text-transparent bg-clip-text bg-gradient-to-r from-gurren-red via-gurren-orange to-spiral-green">ГУРРЕН-ЛАГАННА</span>
+                </h2>
+                <p class="text-text-muted text-sm sm:text-base leading-relaxed">
+                    Вселенная не заканчивается на одной веб-странице! Ниже собраны проверенные внешние ресурсы: официальные базы данных, международные сообщества, энциклопедии лора и родственные шедевры от студии Trigger.
+                </p>
+            </div>
+
+            <!-- 1. Главные Базы Данных и Сообщества -->
+            <div class="mb-16">
+                <h3 class="text-xs font-tech font-bold uppercase tracking-[0.25em] text-gurren-red mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-database"></i> БАЗЫ ДАННЫХ, ЭНЦИКЛОПЕДИИ И ФАНАТСКИЕ ХАБЫ
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    
+                    <!-- Карточка 1: Shikimori -->
+                    <a href="https://shikimori.io/animes/2001-tengen-toppa-gurren-lagann" target="_blank" rel="noopener noreferrer" class="glass-card p-6 rounded-2xl flex flex-col justify-between group">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="w-10 h-10 rounded-xl bg-spiral-green/15 text-spiral-green flex items-center justify-center font-bold text-lg group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-leaf"></i>
+                                </span>
+                                <span class="text-[11px] font-tech font-bold text-spiral-green bg-spiral-green/10 px-2 py-0.5 rounded border border-spiral-green/30">RU БАЗА</span>
+                            </div>
+                            <h4 class="font-display font-bold text-lg text-white group-hover:text-spiral-green transition-colors mb-2">Shikimori.io</h4>
+                            <p class="text-xs text-text-muted leading-relaxed mb-4">
+                                Крупнейшая русскоязычная энциклопедия: полный список персонажей, сэйю, пользовательские рецензии, скриншоты и хронология франшизы.
+                            </p>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-tech font-bold text-white/80 group-hover:text-spiral-green transition-colors border-t border-white/5 pt-4">
+                            <span>Открыть профиль</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </div>
+                    </a>
+
+                    <!-- Карточка 2: MyAnimeList -->
+                    <a href="https://myanimelist.net/anime/2001/Tengen_Toppa_Gurren_Lagann" target="_blank" rel="noopener noreferrer" class="glass-card p-6 rounded-2xl flex flex-col justify-between group">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="w-10 h-10 rounded-xl bg-kamina-blue/15 text-kamina-blue flex items-center justify-center font-bold text-lg group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-star"></i>
+                                </span>
+                                <span class="text-[11px] font-tech font-bold text-kamina-blue bg-kamina-blue/10 px-2 py-0.5 rounded border border-kamina-blue/30">TOP #48 MAL</span>
+                            </div>
+                            <h4 class="font-display font-bold text-lg text-white group-hover:text-kamina-blue transition-colors mb-2">MyAnimeList (MAL)</h4>
+                            <p class="text-xs text-text-muted leading-relaxed mb-4">
+                                Главная мировая база аниме. Оценка 8.64/10 от более чем 1.1 миллиона пользователей, статистика популярности и форумные дискуссии.
+                            </p>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-tech font-bold text-white/80 group-hover:text-kamina-blue transition-colors border-t border-white/5 pt-4">
+                            <span>Перейти на MAL</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </div>
+                    </a>
+
+                    <!-- Карточка 3: Fandom Wiki -->
+                    <a href="https://gurrenlagann.fandom.com/ru/wiki/%D0%97%D0%B0%D0%B3%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F_%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0" target="_blank" rel="noopener noreferrer" class="glass-card p-6 rounded-2xl flex flex-col justify-between group">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="w-10 h-10 rounded-xl bg-gurren-orange/15 text-gurren-orange flex items-center justify-center font-bold text-lg group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-book-open"></i>
+                                </span>
+                                <span class="text-[11px] font-tech font-bold text-gurren-orange bg-gurren-orange/10 px-2 py-0.5 rounded border border-gurren-orange/30">ВИКИ-ЛОР</span>
+                            </div>
+                            <h4 class="font-display font-bold text-lg text-white group-hover:text-gurren-orange transition-colors mb-2">Gurren Lagann Wiki</h4>
+                            <p class="text-xs text-text-muted leading-relaxed mb-4">
+                                Детальный справочник по вселенной: биология Антиспиральщиков, чертежи всех ганменов, концепт-арты и статьи о Спиральной энергии.
+                            </p>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-tech font-bold text-white/80 group-hover:text-gurren-orange transition-colors border-t border-white/5 pt-4">
+                            <span>Читать Вики</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </div>
+                    </a>
+
+                    <!-- Карточка 4: Reddit Community -->
+                    <a href="https://www.reddit.com/r/gurrenlagann/" target="_blank" rel="noopener noreferrer" class="glass-card p-6 rounded-2xl flex flex-col justify-between group">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="w-10 h-10 rounded-xl bg-gurren-red/15 text-gurren-red flex items-center justify-center font-bold text-lg group-hover:scale-110 transition-transform">
+                                    <i class="fa-brands fa-reddit-alien"></i>
+                                </span>
+                                <span class="text-[11px] font-tech font-bold text-gurren-red bg-gurren-red/10 px-2 py-0.5 rounded border border-gurren-red/30">100K+ ПИЛОТОВ</span>
+                            </div>
+                            <h4 class="font-display font-bold text-lg text-white group-hover:text-gurren-red transition-colors mb-2">Reddit r/gurrenlagann</h4>
+                            <p class="text-xs text-text-muted leading-relaxed mb-4">
+                                Живое международное сообщество: свежие фанарты, косплей, мемы, теории о мультивселенной и коллекционные фигурки.
+                            </p>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-tech font-bold text-white/80 group-hover:text-gurren-red transition-colors border-t border-white/5 pt-4">
+                            <span>Вступить в Reddit</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+
+            <!-- 2. Связанные произведения франшизы (Фильмы и спешлы) -->
+            <div class="mb-16">
+                <h3 class="text-xs font-tech font-bold uppercase tracking-[0.25em] text-spiral-green mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-clapperboard"></i> ПОЛНОМЕТРАЖНЫЕ ФИЛЬМЫ И ПРОДОЛЖЕНИЯ
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <div class="glass-card p-6 rounded-2xl border border-white/10 flex flex-col sm:flex-row gap-5 items-center">
+                        <div class="w-24 h-32 rounded-xl bg-gurren-red/20 border border-gurren-red/40 flex items-center justify-center shrink-0 text-gurren-red text-3xl font-display font-black">
+                            M1
+                        </div>
+                        <div class="flex-grow">
+                            <span class="text-[10px] font-tech font-bold text-gurren-red uppercase">ФИЛЬМ 1 (2008)</span>
+                            <h4 class="text-xl font-display font-bold text-white mb-2">Гуррен-Лаганн: На прорыв! (Guren-hen)</h4>
+                            <p class="text-xs text-text-muted leading-relaxed mb-4">
+                                Переосмысление первой арки с обновленной анимацией ключевых битв с Генералами Спирального Короля и расширенными сценами.
+                            </p>
+                            <div class="flex flex-wrap gap-3">
+                                <a href="https://shikimori.io/animes/4107-tengen-toppa-gurren-lagann-movie-1-guren-hen" target="_blank" rel="noopener noreferrer" class="text-xs font-tech font-bold text-spiral-green hover:underline flex items-center gap-1">
+                                    <i class="fa-solid fa-info-circle"></i> На Shikimori
+                                </a>
+                                <a href="https://jut.su/gurren-lagann/film-1.html" target="_blank" rel="noopener noreferrer" class="text-xs font-tech font-bold text-gurren-orange hover:underline flex items-center gap-1">
+                                    <i class="fa-solid fa-play"></i> Смотреть онлайн
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl border border-white/10 flex flex-col sm:flex-row gap-5 items-center">
+                        <div class="w-24 h-32 rounded-xl bg-spiral-green/20 border border-spiral-green/40 flex items-center justify-center shrink-0 text-spiral-green text-3xl font-display font-black">
+                            M2
+                        </div>
+                        <div class="flex-grow">
+                            <span class="text-[10px] font-tech font-bold text-spiral-green uppercase">ФИЛЬМ 2 (2009)</span>
+                            <h4 class="text-xl font-display font-bold text-white mb-2">Гуррен-Лаганн: Звёздный свет (Lagann-hen)</h4>
+                            <p class="text-xs text-text-muted leading-relaxed mb-4">
+                                Грандиозный финал! Включает легендарную альтернативную финальную битву с появлением <strong>Super Tengen Toppa Gurren Lagann</strong>, которой не было в сериале!
+                            </p>
+                            <div class="flex flex-wrap gap-3">
+                                <a href="https://shikimori.io/animes/4565-tengen-toppa-gurren-lagann-movie-2-lagann-hen" target="_blank" rel="noopener noreferrer" class="text-xs font-tech font-bold text-spiral-green hover:underline flex items-center gap-1">
+                                    <i class="fa-solid fa-info-circle"></i> На Shikimori
+                                </a>
+                                <a href="https://jut.su/gurren-lagann/film-2.html" target="_blank" rel="noopener noreferrer" class="text-xs font-tech font-bold text-gurren-orange hover:underline flex items-center gap-1">
+                                    <i class="fa-solid fa-play"></i> Смотреть онлайн
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 3. «Что смотреть дальше?» — Шедевры от команды Trigger / Gainax -->
+            <div>
+                <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+                    <h3 class="text-xs font-tech font-bold uppercase tracking-[0.25em] text-kamina-blue flex items-center gap-2">
+                        <i class="fa-solid fa-fire-flame-curved"></i> ЕСЛИ ВАМ ПОНРАВИЛСЯ ГУРРЕН-ЛАГАНН: ЧТО СМОТРЕТЬ ДАЛЬШЕ?
+                    </h3>
+                    <span class="text-xs text-text-muted font-tech">Прямые ссылки на просмотр и базы</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    
+                    <!-- Рекомендация 1: Kill la Kill -->
+                    <div class="glass-card rounded-2xl overflow-hidden flex flex-col justify-between group">
+                        <div class="p-5">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[10px] font-tech font-bold text-gurren-red uppercase bg-gurren-red/10 px-2 py-0.5 rounded border border-gurren-red/30">STUDIO TRIGGER</span>
+                                <span class="text-xs font-bold text-spiral-green"><i class="fa-solid fa-star"></i> 8.1</span>
+                            </div>
+                            <h4 class="font-display font-bold text-base text-white group-hover:text-gurren-red transition-colors mb-2">Kill la Kill (Убей или умри)</h4>
+                            <p class="text-xs text-text-muted leading-relaxed">
+                                Режиссер Хироюки Имаиси взял тот же термоядерный темп, гигантские ножницы и бескомпромиссный пафос. Абсолютный мастхэв!
+                            </p>
+                        </div>
+                        <div class="p-4 bg-white/[0.02] border-t border-white/5 flex items-center justify-between text-xs font-tech font-bold">
+                            <a href="https://shikimori.io/animes/18679-kill-la-kill" target="_blank" rel="noopener noreferrer" class="text-text-muted hover:text-spiral-green transition-colors">
+                                <i class="fa-solid fa-info-circle"></i> Shikimori
+                            </a>
+                            <a href="https://jut.su/kill-la-kill/" target="_blank" rel="noopener noreferrer" class="text-gurren-red hover:text-white transition-colors flex items-center gap-1">
+                                Смотреть <i class="fa-solid fa-play text-[10px]"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Рекомендация 2: Promare -->
+                    <div class="glass-card rounded-2xl overflow-hidden flex flex-col justify-between group">
+                        <div class="p-5">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[10px] font-tech font-bold text-kamina-blue uppercase bg-kamina-blue/10 px-2 py-0.5 rounded border border-kamina-blue/30">ФИЛЬМ TRIGGER</span>
+                                <span class="text-xs font-bold text-spiral-green"><i class="fa-solid fa-star"></i> 7.9</span>
+                            </div>
+                            <h4 class="font-display font-bold text-base text-white group-hover:text-kamina-blue transition-colors mb-2">Promare (Промар)</h4>
+                            <p class="text-xs text-text-muted leading-relaxed">
+                                Меха-пожарные, мутанты управляющие пламенем, неоновый геометрический стиль и Симоновский дух спасения планеты в полнометражке.
+                            </p>
+                        </div>
+                        <div class="p-4 bg-white/[0.02] border-t border-white/5 flex items-center justify-between text-xs font-tech font-bold">
+                            <a href="https://shikimori.io/animes/35848-promare" target="_blank" rel="noopener noreferrer" class="text-text-muted hover:text-spiral-green transition-colors">
+                                <i class="fa-solid fa-info-circle"></i> Shikimori
+                            </a>
+                            <a href="https://jut.su/promare/" target="_blank" rel="noopener noreferrer" class="text-kamina-blue hover:text-white transition-colors flex items-center gap-1">
+                                Смотреть <i class="fa-solid fa-play text-[10px]"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Рекомендация 3: Cyberpunk Edgerunners -->
+                    <div class="glass-card rounded-2xl overflow-hidden flex flex-col justify-between group">
+                        <div class="p-5">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[10px] font-tech font-bold text-spiral-green uppercase bg-spiral-green/10 px-2 py-0.5 rounded border border-spiral-green/30">TRIGGER & NETFLIX</span>
+                                <span class="text-xs font-bold text-spiral-green"><i class="fa-solid fa-star"></i> 8.6</span>
+                            </div>
+                            <h4 class="font-display font-bold text-base text-white group-hover:text-spiral-green transition-colors mb-2">Cyberpunk: Edgerunners</h4>
+                            <p class="text-xs text-text-muted leading-relaxed">
+                                Сенсация 2022 года от Хироюки Имаиси. Неоновый Найт-Сити, безумные киберимпланты и душераздирающая история Дэвида Мартинеса.
+                            </p>
+                        </div>
+                        <div class="p-4 bg-white/[0.02] border-t border-white/5 flex items-center justify-between text-xs font-tech font-bold">
+                            <a href="https://shikimori.io/animes/42310-cyberpunk-edgerunners" target="_blank" rel="noopener noreferrer" class="text-text-muted hover:text-spiral-green transition-colors">
+                                <i class="fa-solid fa-info-circle"></i> Shikimori
+                            </a>
+                            <a href="https://jut.su/cyberpunk-edgerunners/" target="_blank" rel="noopener noreferrer" class="text-spiral-green hover:text-white transition-colors flex items-center gap-1">
+                                Смотреть <i class="fa-solid fa-play text-[10px]"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Рекомендация 4: Evangelion -->
+                    <div class="glass-card rounded-2xl overflow-hidden flex flex-col justify-between group">
+                        <div class="p-5">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[10px] font-tech font-bold text-purple-400 uppercase bg-purple-400/10 px-2 py-0.5 rounded border border-purple-400/30">GAINAX CLASSIC</span>
+                                <span class="text-xs font-bold text-spiral-green"><i class="fa-solid fa-star"></i> 8.3</span>
+                            </div>
+                            <h4 class="font-display font-bold text-base text-white group-hover:text-purple-400 transition-colors mb-2">Neon Genesis Evangelion</h4>
+                            <p class="text-xs text-text-muted leading-relaxed">
+                                Прародитель студии Gainax. Если Гуррен-Лаганн — это абсолютный гимн несокрушимой воле, то Ева — его философское и трагическое зеркало.
+                            </p>
+                        </div>
+                        <div class="p-4 bg-white/[0.02] border-t border-white/5 flex items-center justify-between text-xs font-tech font-bold">
+                            <a href="https://shikimori.io/animes/30-neon-genesis-evangelion" target="_blank" rel="noopener noreferrer" class="text-text-muted hover:text-spiral-green transition-colors">
+                                <i class="fa-solid fa-info-circle"></i> Shikimori
+                            </a>
+                            <a href="https://jut.su/shingeki-evangelion/" target="_blank" rel="noopener noreferrer" class="text-purple-400 hover:text-white transition-colors flex items-center gap-1">
+                                Смотреть <i class="fa-solid fa-play text-[10px]"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         МАСШТАБ СИЛ: ЛОГАРИФМИЧЕСКИЙ ГРАФИК (ANALYTICS SECTION)
+         ========================================================================= -->
+    <section id="analytics" class="py-24 px-6 bg-cosmic-black border-b border-white/5 relative z-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <div class="lg:col-span-4">
+                    <div class="inline-flex items-center space-x-2 text-spiral-green text-xs font-tech font-bold uppercase tracking-[0.25em] mb-3">
+                        <i class="fa-solid fa-atom"></i>
+                        <span>КВАНТОВАЯ ЭКСПАНСИЯ</span>
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl font-display font-black text-text-bright leading-tight">
+                        ОТ БУРА ДО <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-spiral-green to-kamina-blue">МЕТАВСЕЛЕННОЙ</span>
+                    </h2>
+                    <p class="text-text-muted mt-5 leading-relaxed text-sm sm:text-base">
+                        Ни одно произведение в мировой культуре не демонстрирует столь колоссального масштабирования физических размеров.
+                    </p>
+                    <p class="text-text-muted mt-3 leading-relaxed text-sm sm:text-base">
+                        Спиральная Энергия не подчиняется законам сохранения массы. Лаганн начинается как скромный бур высотой <strong class="text-white">1.5 метра</strong>, а в финале Супер Тенген Топпа Гуррен-Лаганн превосходит наблюдаемую Вселенную в <strong class="text-spiral-green">сотни раз</strong>!
+                    </p>
+                    <div class="mt-6 p-4 rounded-xl bg-white/5 border border-white/10 text-xs text-text-muted space-y-1">
+                        <div><strong class="text-white">1.5 м</strong> → Лаганн</div>
+                        <div><strong class="text-white">12 000 км</strong> → Сверхгалактический (Размер Земли)</div>
+                        <div><strong class="text-spiral-green">52.8 млрд св. лет</strong> → Супер Тенген Топпа</div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-8 bg-cosmic-card rounded-2xl border border-white/10 p-6 md:p-8 shadow-2xl">
+                    <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+                        <h3 class="text-sm sm:text-base font-tech font-bold uppercase tracking-wider text-text-bright flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-spiral-green"></i> Сравнительный график роста высоты (Логарифмическая шкала)
+                        </h3>
+                        <span class="text-[11px] font-tech text-spiral-green bg-spiral-green/10 px-2.5 py-1 rounded border border-spiral-green/30">Шкала: метры</span>
+                    </div>
+                    <div class="chart-container" style="position: relative; height: 380px; width: 100%;">
+                        <canvas id="mechaScaleChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         ГЕНЕРАТОР СПИРАЛЬНОЙ ВОЛИ (QUOTES SECTION)
+         ========================================================================= -->
+    <section id="quotes" class="py-24 px-6 bg-cosmic-dark relative z-10">
+        <div class="max-w-6xl mx-auto text-center">
+            
+            <div class="w-16 h-16 bg-gradient-to-br from-gurren-red to-gurren-orange border border-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-neon-red transform -rotate-6 hover:rotate-0 transition-transform">
+                <i class="fa-solid fa-star text-white text-2xl"></i>
+            </div>
+            
+            <h2 class="text-3xl sm:text-4xl font-display font-black text-text-bright mb-12">
+                ГЕНЕРАТОР <span class="text-gurren-red">СПИРАЛЬНОЙ ВОЛИ</span>
+            </h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center text-left">
+                
+                <div class="lg:col-span-5">
+                    <div class="rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl h-80 lg:h-[400px] relative group">
+                        <img src="https://upload.wikimedia.org/wikipedia/ru/a/a9/%D0%93%D1%83%D1%80%D1%80%D0%B5%D0%BD-%D0%9B%D0%B0%D0%B3%D0%B0%D0%BD%D0%BD%2C_%D0%BE%D0%B1%D1%89%D0%B5%D0%B5_%D0%B8%D0%B7%D0%BE%D0%B1%D1%80%D0%B0%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5_%D0%BF%D0%B5%D1%80%D1%81%D0%BE%D0%BD%D0%B0%D0%B6%D0%B5%D0%B9.jpg" 
+                             alt="Камина и Симон" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <span class="text-xs font-tech font-bold text-white bg-gurren-red px-3 py-1 rounded-full uppercase tracking-widest shadow-neon-red">
+                                КОМАНДА ДАЙ-ГУРРЕН
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-7 bg-cosmic-card border border-white/10 rounded-2xl p-8 md:p-12 shadow-2xl relative min-h-[360px] flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs font-tech font-bold text-spiral-green uppercase tracking-[0.2em] flex items-center gap-2">
+                                <i class="fa-solid fa-bolt"></i> МУДРОСТЬ ЛИДЕРОВ:
+                            </span>
+                            <button onclick="copyQuote()" class="text-xs text-text-muted hover:text-white transition-colors" title="Скопировать цитату">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                        <p id="quote-text" class="text-xl sm:text-2xl font-serif italic text-text-bright leading-relaxed transition-opacity duration-300">
+                            "Магма течет в наших венах, раскаляя сердца! Безграничное слияние, Гуррен-Лаганн! Копая землю, я пронзаю небеса!"
+                        </p>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-8 border-t border-white/10 pt-6">
+                        <p id="quote-author" class="text-gurren-red font-tech uppercase tracking-widest font-bold text-sm mb-4 sm:mb-0 transition-opacity duration-300">
+                            — Камина и Симон
+                        </p>
+                        
+                        <div class="flex items-center space-x-3">
+                            <button onclick="generateQuote()" class="px-6 py-3 bg-gradient-to-r from-gurren-red to-gurren-orange hover:shadow-neon-red text-white text-xs font-tech uppercase tracking-widest font-bold rounded-xl transition-all duration-300 flex items-center gap-2">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                                <span>Зарядиться пафосом</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         ПОДВАЛ (FOOTER)
+         ========================================================================= -->
+    <footer class="py-16 px-6 bg-cosmic-black border-t border-white/10 relative z-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+                
+                <div class="md:col-span-2">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-8 h-6 bg-gurren-red flex items-center justify-center rounded text-black font-black text-xs kamina-shades shadow-neon-red">
+                            <i class="fa-solid fa-fire text-white text-[10px]"></i>
+                        </div>
+                        <span class="text-gurren-red font-display font-black text-xl tracking-tighter">
+                            GURREN <span class="text-spiral-green">LAGANN</span>
+                        </span>
+                    </div>
+                    <p class="text-xs text-text-muted leading-relaxed max-w-md mb-6">
+                        Фанатский архив-портал по вселенной «Tengen Toppa Gurren Lagann». Создан во имя несокрушимой человеческой воли, которая ломает любые стены и пронзает горизонт вселенной.
+                    </p>
+                    <div class="flex items-center space-x-3">
+                        <a href="https://shikimori.io/animes/2001-tengen-toppa-gurren-lagann" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-text-muted hover:text-spiral-green hover:border-spiral-green transition-all" title="Shikimori">
+                            <i class="fa-solid fa-leaf text-sm"></i>
+                        </a>
+                        <a href="https://myanimelist.net/anime/2001/Tengen_Toppa_Gurren_Lagann" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-text-muted hover:text-kamina-blue hover:border-kamina-blue transition-all" title="MyAnimeList">
+                            <i class="fa-solid fa-star text-sm"></i>
+                        </a>
+                        <a href="https://jut.su/gurren-lagann/" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-text-muted hover:text-gurren-orange hover:border-gurren-orange transition-all" title="Jut.su">
+                            <i class="fa-solid fa-play text-sm"></i>
+                        </a>
+                        <a href="https://www.reddit.com/r/gurrenlagann/" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-text-muted hover:text-gurren-red hover:border-gurren-red transition-all" title="Reddit">
+                            <i class="fa-brands fa-reddit-alien text-sm"></i>
+                        </a>
+                        <a href="https://www.gurren-lagann.net/" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-text-muted hover:text-white hover:border-white transition-all" title="Официальный сайт Японии">
+                            <i class="fa-solid fa-globe text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-tech font-bold text-white uppercase tracking-wider mb-4">РАЗДЕЛЫ САЙТА</h4>
+                    <ul class="space-y-2 text-xs text-text-muted font-tech">
+                        <li><a href="#hero" class="hover:text-gurren-red transition-colors">Главная страница</a></li>
+                        <li><a href="#nexus" class="hover:text-spiral-green transition-colors">Нексус Эволюции Меха</a></li>
+                        <li><a href="#watch" class="hover:text-gurren-red transition-colors">Онлайн-Кинотеатр</a></li>
+                        <li><a href="#anime-hub" class="hover:text-spiral-green transition-colors">Мультиверс & Аниме-Базы</a></li>
+                        <li><a href="#analytics" class="hover:text-spiral-green transition-colors">Сравнение Масштабов</a></li>
+                        <li><a href="#quotes" class="hover:text-gurren-red transition-colors">Генератор Воли</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-tech font-bold text-white uppercase tracking-wider mb-4">ВНЕШНИЕ ПЕРЕХОДЫ</h4>
+                    <ul class="space-y-2 text-xs text-text-muted font-tech">
+                        <li><a href="https://shikimori.io/animes/2001-tengen-toppa-gurren-lagann" target="_blank" rel="noopener noreferrer" class="hover:text-spiral-green transition-colors">Shikimori: Гуррен-Лаганн</a></li>
+                        <li><a href="https://jut.su/gurren-lagann/" target="_blank" rel="noopener noreferrer" class="hover:text-spiral-green transition-colors">Jut.su: Смотреть серии</a></li>
+                        <li><a href="https://shikimori.io/animes/18679-kill-la-kill" target="_blank" rel="noopener noreferrer" class="hover:text-gurren-red transition-colors">Shikimori: Kill la Kill</a></li>
+                        <li><a href="https://shikimori.io/animes/35848-promare" target="_blank" rel="noopener noreferrer" class="hover:text-kamina-blue transition-colors">Shikimori: Promare</a></li>
+                        <li><a href="https://www.st-trigger.co.jp/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">Studio Trigger Official</a></li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="border-t border-white/5 pt-8 flex flex-col sm:flex-row justify-between items-center text-xs text-text-muted font-tech">
+                <p>© 2026 Архивы Спирали. Разработано во имя Спирального Человечества.</p>
+                <p class="mt-2 sm:mt-0 text-gurren-red font-bold">«ROW ROW FIGHT THE POWER!»</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- =========================================================================
+         JAVASCRIPT ЛОГИКА САЙТА
+         ========================================================================= -->
+    <script>
+        // ---------------------------------------------------------------------
+        // 1. АНИМИРОВАННАЯ СПИРАЛЬНАЯ ГАЛАКТИКА (CANVAS PARTICLES)
+        // ---------------------------------------------------------------------
+        const canvas = document.getElementById('spiral-canvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const particles = [];
+        const numParticles = 280;
+        let mouseX = width / 2;
+        let mouseY = height / 2;
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        for (let i = 0; i < numParticles; i++) {
+            particles.push({
+                angle: (i / numParticles) * Math.PI * 8,
+                radius: Math.random() * Math.min(width, height) * 0.48 + 20,
+                speed: 0.003 + Math.random() * 0.005,
+                size: Math.random() * 2.2 + 0.8,
+                color: i % 3 === 0 ? '#00FF66' : (i % 3 === 1 ? '#FF2A2A' : '#FF7A00'),
+                alpha: Math.random() * 0.7 + 0.3
+            });
+        }
+
+        function drawSpiral() {
+            ctx.clearRect(0, 0, width, height);
+            const cx = width / 2 + (mouseX - width / 2) * 0.04;
+            const cy = height / 2 + (mouseY - height / 2) * 0.04;
+
+            particles.forEach(p => {
+                p.angle += p.speed;
+                const x = cx + Math.cos(p.angle) * p.radius;
+                const y = cy + Math.sin(p.angle) * p.radius;
+
+                ctx.beginPath();
+                ctx.arc(x, y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.alpha;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = p.color;
+                ctx.fill();
+            });
+
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+            requestAnimationFrame(drawSpiral);
+        }
+        drawSpiral();
+
+        // ---------------------------------------------------------------------
+        // 2. БАЗА ДАННЫХ СЕРИЙ И ФИЛЬМОВ
+        // ---------------------------------------------------------------------
+        const playlist = [
+            { name: "1", title: "Серия 1: Пронзи небо своим буром!", src: "https://rutube.ru/play/embed/021a65cfadd433fe2038bf149762b53a" },
+            { name: "2", title: "Серия 2: Я сказал, я буду этим управлять!", src: "https://rutube.ru/play/embed/ea4356db01fcf53cd00a6b74cab74beb" },
+            { name: "3", title: "Серия 3: У тебя две рожи, ну и что?!", src: "https://rutube.ru/play/embed/b65b9f053029a56414d8b805f725ec12" },
+            { name: "4", title: "Серия 4: Много лиц не значит много ума!", src: "https://rutube.ru/play/embed/c779c2992a27f717e07836c74e26ff65" },
+            { name: "5", title: "Серия 5: Я этого не понимаю!", src: "https://rutube.ru/play/embed/ccba20c9435b7b1dd4caa32dc8988da4" },
+            { name: "6", title: "Серия 6: Вы, ребята, не понимаете сути!", src: "https://rutube.ru/play/embed/8d5ff0ab79d88cb72f7084665009a663" },
+            { name: "7", title: "Серия 7: Ты сможешь это сделать!", src: "https://rutube.ru/play/embed/1cdebf8176441bfac92a36b180040c09" },
+            { name: "8", title: "Серия 8: Прощай, брат...", src: "https://rutube.ru/play/embed/ade8f3276e6312e86a9ce5bc5f4c87df" },
+            { name: "9", title: "Серия 9: Что такое человек?", src: "https://rutube.ru/play/embed/90887598570d2b3df93c671aee52a7bd" },
+            { name: "10", title: "Серия 10: Кто такой твой «Брат»?", src: "https://rutube.ru/play/embed/69c726043a79d21e8a3222ca96de7168" },
+            { name: "11", title: "Серия 11: Симон, убери руку!", src: "https://rutube.ru/play/embed/1669a06cf2a6e05bdfce5798ce465887" },
+            { name: "12", title: "Серия 12: Йоко, сделай мне одолжение", src: "https://rutube.ru/play/embed/dea531394cf9d142de4e1f5c773b8d8c" },
+            { name: "13", title: "Серия 13: Ешьте досыта!", src: "https://rutube.ru/play/embed/649bd21c2b789b0568b2f1a8c517d305" },
+            { name: "14", title: "Серия 14: Приветствую всех!", src: "https://rutube.ru/play/embed/bd931ef38bd2a351c28ad4a7327f5717" },
+            { name: "15", title: "Серия 15: Я направлюсь к завтрашнему дню!", src: "https://rutube.ru/play/embed/7133ca0f1f207f31827e27af5c50d6cf" },
+            { name: "16", title: "Серия 16: Сводка битвы", src: "https://rutube.ru/play/embed/87540c0191f819ce509fbd27709c8f15" },
+            { name: "17", title: "Серия 17: Вы ничего не понимаете!", src: "https://rutube.ru/play/embed/77a87a81db0380cd8ed7fca91df09096" },
+            { name: "18", title: "Серия 18: Открой мне секреты мира!", src: "https://rutube.ru/play/embed/e82843cc97b61a22cd134ad41b3459f4" },
+            { name: "19", title: "Серия 19: Мы выживем любой ценой!", src: "https://rutube.ru/play/embed/5d2906f71a9c46c06af0a4c81bc6af85" },
+            { name: "20", title: "Серия 20: До каких пор боги будут испытывать нас?", src: "https://rutube.ru/play/embed/8f3f99af3d58fda815dd54aa86c1a570" },
+            { name: "21", title: "Серия 21: Вы — те, кто должен выжить!", src: "https://rutube.ru/play/embed/8c38b90c0823ac125140b92000381885" },
+            { name: "22", title: "Серия 22: Мой последний долг", src: "https://rutube.ru/play/embed/bc79f7c13258563b0e9a5ae1b982f70d" },
+            { name: "23", title: "Серия 23: Вперед к финальной битве!", src: "https://rutube.ru/play/embed/3087cd38d57f1e3977c54eed4d180d70" },
+            { name: "24", title: "Серия 24: Я никогда не забуду эту минуту!", src: "https://rutube.ru/play/embed/d364f53d66699255a8d24422af78669e" },
+            { name: "25", title: "Серия 25: Я исполню твою последнюю волю!", src: "https://rutube.ru/play/embed/4e9c407cac73fe2b5e083332748cea7c" },
+            { name: "26", title: "Серия 26: Погнали, братва!", src: "https://rutube.ru/play/embed/5079713e1ba49ba8dd2c00a85c02ee55" },
+            { name: "Финал", title: "Серия 27: Звёзды в небе — это спирали!", src: "https://rutube.ru/play/embed/e7c1e3f00355b7b04f7e9b75dd62132a" },
+            { name: "Фильм", title: "Полнометражка: Звёздный свет (Lagann-hen)", src: "https://kodikplayer.com/video/63366/159d13bcb3233132ab8735f782c25d2f/720p" }
+        ];
+
+        let currentEpisodeIndex = 0;
+
+        // ---------------------------------------------------------------------
+        // 3. БАЗА ДАННЫХ МЕХОВ
+        // ---------------------------------------------------------------------
+        const mechas = [
+            {
+                id: "lagann",
+                name: "LAGANN",
+                title: "Лаганн",
+                unlockEpisode: 1,
+                pilot: "Симон",
+                height: "1.5 метра",
+                heightMeters: 1.5,
+                combatType: "Ассимиляция и Бурение",
+                image: "https://static.wikia.nocookie.net/gurrenlagann/images/7/71/Lagann.png/revision/latest?cb=20190107125416&path-prefix=ru",
+                desc: "Уникальный ганмен, обнаруженный Симоном в глубинах его родной деревни Джиха. Главная сила Лаганна кроется в его Спиральном ядре и способности ассимилировать любые другие технологии посредством физического бурения («Слияние Лаганна»).",
+                mechanics: "Лаганн использует ментальную энергию Симона для генерации физического твердого бура из любой точки корпуса. При соединении с другими ганменами он мгновенно берет под контроль их энергосистемы и перенастраивает их под Спиральные волны."
+            },
+            {
+                id: "gurren",
+                name: "GURREN",
+                title: "Гуррен",
+                unlockEpisode: 2,
+                pilot: "Камина / Вирал",
+                height: "15 метров",
+                heightMeters: 15,
+                combatType: "Рукопашный бой / Сила",
+                image: "https://static.wikia.nocookie.net/gurrenlagann/images/6/65/Gurren_detail.png/revision/latest?cb=20181225193657&path-prefix=ru",
+                desc: "Ганмен, изначально принадлежавший одному из командиров зверолюдей, но отвоеванный Каминой. Был кастомизирован: Камина добавил на него фирменные гигантские солнцезащитные очки и перекрасил в агрессивный красный цвет.",
+                mechanics: "Работает как классический тяжелый штурмовик. Не имеет встроенного оружия, кроме своих кулаков и меча. Очки на груди могут отсоединяться и использоваться как огромный бумеранг-клинок, способный разрезать прочнейшую сталь зверолюдей."
+            },
+            {
+                id: "gurren_lagann",
+                name: "GURREN-LAGANN",
+                title: "Гуррен-Лаганн",
+                unlockEpisode: 3,
+                pilot: "Симон и Вирал",
+                height: "15 метров (базовый)",
+                heightMeters: 15,
+                combatType: "Универсальный Спиральный Боец",
+                image: "https://static.wikia.nocookie.net/gurrenlagann/images/d/d6/Gurren_lagann_commission_by_sharknob-d7arxsh.jpg/revision/latest/scale-to-width-down/541?cb=20181029152631&path-prefix=ru",
+                desc: "Флагманский мех Команды Дыроколов. Рождается в результате невероятного слияния, когда Симон вбивает бур Лаганна в шлем Гуррена. Абсолютное воплощение девиза «Преодолевать любые преграды».",
+                mechanics: "Питается напрямую от Спиральной энергии Симона. Самая известная способность — материализация бесконечного числа гигантских буров. Финальная атака — «Giga Drill Break» — концентрирует всю Спиральную силу в один бур, который в сотни раз превышает размер самого меха."
+            },
+            {
+                id: "arc_gurren_lagann",
+                name: "ARC GURREN-LAGANN",
+                title: "Арк Гуррен-Лаганн",
+                unlockEpisode: 13,
+                pilot: "Симон и Вирал",
+                height: "5 километров",
+                heightMeters: 5000,
+                combatType: "Пространственный Прорыв",
+                image: "https://static.wikia.nocookie.net/gurrenlagann/images/1/1d/LO9to0R.png/revision/latest?cb=20181114163745&path-prefix=ru",
+                desc: "Колоссальное слияние Гуррен-Лаганна и космического линкора Арк-Гуррен. Создан в момент экстренной угрозы падения Луны на Землю.",
+                mechanics: "Мех способен физически разрывать и деформировать ткань пространства-времени. Главное оружие — удар «Burst Spinning Punch», который буквально выбивает противников за пределы текущей пространственной метрики, отправляя их в квантовое небытие."
+            },
+            {
+                id: "super_galaxy_gl",
+                name: "SUPER GALAXY GURREN-LAGANN",
+                title: "Сверхгалактический Гуррен-Лаганн",
+                unlockEpisode: 19,
+                pilot: "Симон, Вирал и Дай-Гуррен",
+                height: "Размер планеты (~12 000 км)",
+                heightMeters: 12000000,
+                combatType: "Субпространственная Аннигиляция",
+                image: "https://static.wikia.nocookie.net/gurrenlagann/images/5/58/DThLBDtVoAAnNyR.jpg/revision/latest?cb=20181227182351&path-prefix=ru",
+                desc: "Мега-структура планетарного масштаба, созданная путем ассимиляции Спирального Линкора «Соборная Терра». Машина способна в одиночку вести войну против целых флотилий Антиспиральщиков.",
+                mechanics: "Оснащена плечевыми пушками, способными стрелять сквозь временные оси. Мех может обнаруживать противников в параллельных вселенных и мгновенно поражать их с помощью субпространственных буров."
+            },
+            {
+                id: "super_tengen_toppa_gl",
+                name: "SUPER TENGEN TOPPA G.L.",
+                title: "Супер Тенген Топпа Гуррен-Лаганн",
+                unlockEpisode: 27,
+                pilot: "Симон и вся Команда Дай-Гуррен",
+                height: "52.8 миллиарда световых лет",
+                heightMeters: 5.0e26,
+                combatType: "Абсолютная Мультивселенская Сила",
+                image: "https://static.wikia.nocookie.net/gurrenlagann/images/6/69/Super_Tengen_Toppa_Gurren_Lagann.png/revision/latest/scale-to-width-down/800?cb=20181225123736&path-prefix=ru",
+                desc: "Абсолютная финальная форма, принимающая образ Симона в плаще из чистой Спиральной энергии. Самый большой мех в истории фантастики — его размер превышает наблюдаемую Вселенную.",
+                mechanics: "Его сила стремится к бесконечности. Финальный Супер-гига бур превосходит размеры наблюдаемой Вселенной во много раз. Атака способна стереть мультивселенную Антиспирали и переписать базовые константы реальности."
+            }
+        ];
+
+        let currentMechaId = "lagann";
+
+        function getUserProgress() {
+            return parseInt(localStorage.getItem("gl_watched_episode")) || 1;
+        }
+
+        function isMechaUnlocked(mecha) {
+            return getUserProgress() >= mecha.unlockEpisode;
+        }
+
+        function renderTabs() {
+            const container = document.getElementById("mecha-tabs");
+            if (!container) return;
+            container.innerHTML = "";
+            
+            mechas.forEach((mecha, idx) => {
+                const unlocked = isMechaUnlocked(mecha);
+                const button = document.createElement("button");
+                
+                const isSelected = mecha.id === currentMechaId;
+                button.className = `w-full text-left p-4 rounded-2xl border transition-all duration-300 flex items-center justify-between ${isSelected ? 'active-tab shadow-neon-red' : 'bg-cosmic-card/60 border-white/5 hover:border-white/20 text-text-muted hover:text-white'}`;
+                
+                const displayName = unlocked ? mecha.name : "????? [ЗАБЛОКИРОВАНО]";
+                const indicatorColor = unlocked ? "text-spiral-green" : "text-white/20";
+                const indicatorIcon = unlocked ? '<i class="fa-solid fa-circle-check"></i>' : '<i class="fa-solid fa-lock"></i>';
+
+                button.innerHTML = `
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-tech font-bold tracking-widest text-gurren-red uppercase">ФАЗА 0${idx + 1}</span>
+                        <span class="font-display font-bold text-sm tracking-wide mt-1">${displayName}</span>
+                    </div>
+                    <span class="text-xs ${indicatorColor} font-mono">${indicatorIcon}</span>
+                `;
+                
+                button.onclick = () => {
+                    playBeepSound();
+                    currentMechaId = mecha.id;
+                    renderTabs();
+                    renderDetail();
+                };
+                
+                container.appendChild(button);
+            });
+        }
+
+        function renderDetail() {
+            const container = document.getElementById("mecha-detail-view");
+            if (!container) return;
+            const mecha = mechas.find(m => m.id === currentMechaId);
+            if (!mecha) return;
+
+            container.style.opacity = 0;
+            container.style.transform = "translateY(12px)";
+            container.style.transition = "all 0.3s ease-out";
+
+            const unlocked = isMechaUnlocked(mecha);
+
+            setTimeout(() => {
+                if (unlocked) {
+                    container.innerHTML = `
+                        <div class="absolute -right-16 -top-16 text-white/[0.02] font-display font-black text-[220px] select-none pointer-events-none">GL</div>
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 relative z-10">
+                            <div class="md:col-span-5">
+                                <div class="relative rounded-2xl overflow-hidden border border-white/10 group h-80 md:h-full min-h-[260px] bg-cosmic-black flex items-center justify-center shadow-xl">
+                                    <img src="${mecha.image}" alt="${mecha.title}" 
+                                         class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105 drop-shadow-[0_0_30px_rgba(255,42,42,0.4)]"
+                                         onerror="this.onerror=null; this.src='https://static.wikia.nocookie.net/gurrenlagann/images/d/d6/Gurren_lagann_commission_by_sharknob-d7arxsh.jpg/revision/latest/scale-to-width-down/541?cb=20181029152631&path-prefix=ru';"
+                                    >
+                                    <div class="absolute inset-0 bg-gradient-to-t from-cosmic-black/85 via-transparent to-transparent"></div>
+                                    <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+                                        <span class="text-[10px] bg-gurren-red text-white font-tech font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-neon-red">${mecha.combatType}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="md:col-span-7 flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center space-x-2.5 mb-2">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-spiral-green animate-pulse"></span>
+                                        <span class="text-xs font-tech font-bold tracking-widest text-spiral-green uppercase">Доступ получен на ${mecha.unlockEpisode} серии</span>
+                                    </div>
+                                    <h3 class="text-2xl sm:text-4xl font-display font-black tracking-tight text-white mb-4">${mecha.title}</h3>
+                                    <div class="grid grid-cols-2 gap-4 mb-5 bg-white/5 p-4 rounded-xl border border-white/5 text-sm">
+                                        <div>
+                                            <span class="text-text-muted text-[11px] font-tech uppercase tracking-wider block">Пилот:</span>
+                                            <strong class="text-white font-semibold text-xs sm:text-sm">${mecha.pilot}</strong>
+                                        </div>
+                                        <div>
+                                            <span class="text-text-muted text-[11px] font-tech uppercase tracking-wider block">Высота / Масштаб:</span>
+                                            <strong class="text-spiral-green font-semibold text-xs sm:text-sm">${mecha.height}</strong>
+                                        </div>
+                                    </div>
+                                    <p class="text-text-muted leading-relaxed mb-6 text-xs sm:text-sm">${mecha.desc}</p>
+                                </div>
+                                <div class="border-t border-white/10 pt-5">
+                                    <h4 class="text-xs font-tech font-bold text-gurren-red uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-crosshairs"></i> Принцип работы и вооружение:
+                                    </h4>
+                                    <p class="text-xs text-text-muted leading-relaxed italic">${mecha.mechanics}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center text-center py-20 relative z-10">
+                            <div class="w-20 h-20 rounded-full bg-gurren-red/10 border border-gurren-red/30 flex items-center justify-center text-gurren-red text-3xl mb-6 shadow-neon-red animate-pulse">
+                                <i class="fa-solid fa-lock"></i>
+                            </div>
+                            <h3 class="text-2xl font-display font-black text-gurren-red uppercase tracking-wider mb-2">ДАННЫЕ ЗАШИФРОВАНЫ СПИРАЛЬЮ</h3>
+                            <p class="text-text-muted max-w-md text-sm leading-relaxed mb-6">
+                                Эта эволюционная фаза скрыта квантовыми барьерами. Чтобы снять блокировку и увидеть форму меха, дойдите до <strong class="text-spiral-green">${mecha.unlockEpisode}-й серии</strong> в онлайн-кинотеатре ниже!
+                            </p>
+                            <a href="#watch" class="px-6 py-3 bg-gradient-to-r from-gurren-red to-gurren-orange text-white text-xs font-tech font-bold uppercase tracking-wider rounded-xl shadow-neon-red hover:scale-105 transition-all">
+                                <i class="fa-solid fa-play mr-2"></i> Перейти к просмотру
+                            </a>
+                        </div>
+                    `;
+                }
+                container.style.opacity = 1;
+                container.style.transform = "translateY(0)";
+            }, 140);
+        }
+
+        // ---------------------------------------------------------------------
+        // 4. ПЛЕЕР СЕРИЙ И СОХРАНЕНИЕ ПРОГРЕССА
+        // ---------------------------------------------------------------------
+        function buildEpisodeSelector() {
+            const container = document.getElementById("episode-grid");
+            if (!container) return;
+            container.innerHTML = "";
+
+            playlist.forEach((item, index) => {
+                const btn = document.createElement("button");
+                const isSpecial = item.name === "Финал" || item.name === "Фильм";
+                
+                if (isSpecial) {
+                    btn.className = "col-span-2 py-2 text-[10px] font-tech font-bold uppercase rounded-lg border border-gurren-red bg-gurren-red/10 text-white hover:bg-gurren-red transition-all text-center tracking-wider";
+                } else {
+                    btn.className = "py-2 text-xs font-mono font-bold rounded-lg border border-white/10 text-text-muted hover:border-spiral-green hover:text-white transition-all text-center";
+                }
+                
+                btn.innerText = item.name;
+                btn.id = `ep-btn-${index}`;
+                
+                btn.onclick = () => {
+                    selectEpisode(index);
+                };
+
+                container.appendChild(btn);
+            });
+
+            selectEpisode(0, false);
+        }
+
+        function selectEpisode(index, playClick = true) {
+            if (playClick) playBeepSound();
+            currentEpisodeIndex = index;
+            const item = playlist[index];
+            const player = document.getElementById("video-player");
+            const titleElem = document.getElementById("current-episode-title");
+            
+            if (player) player.src = item.src;
+            if (titleElem) titleElem.innerText = item.title;
+
+            let numericEpisode = 1;
+            if (item.name === "Финал") numericEpisode = 27;
+            else if (item.name === "Фильм") numericEpisode = 28;
+            else numericEpisode = parseInt(item.name);
+
+            if (numericEpisode > getUserProgress()) {
+                localStorage.setItem("gl_watched_episode", numericEpisode);
+                showToast(`Разблокирован прогресс: Серия ${numericEpisode}! Проверь Нексус Меха.`);
+            }
+
+            const prog = document.getElementById("progress-indicator");
+            if (prog) prog.innerText = `Прогресс: ${Math.max(numericEpisode, getUserProgress())}/28`;
+
+            renderTabs();
+            renderDetail();
+
+            playlist.forEach((_, i) => {
+                const b = document.getElementById(`ep-btn-${i}`);
+                if (b) b.classList.remove("border-spiral-green", "text-spiral-green", "bg-spiral-green/20", "shadow-neon-green");
+            });
+
+            const activeBtn = document.getElementById(`ep-btn-${index}`);
+            if (activeBtn) {
+                activeBtn.classList.add("border-spiral-green", "text-spiral-green", "bg-spiral-green/20", "shadow-neon-green");
+            }
+        }
+
+        function nextEpisode() {
+            if (currentEpisodeIndex < playlist.length - 1) {
+                selectEpisode(currentEpisodeIndex + 1);
+            }
+        }
+
+        function prevEpisode() {
+            if (currentEpisodeIndex > 0) {
+                selectEpisode(currentEpisodeIndex - 1);
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // 5. ГЕНЕРАТОР ПАФОСНЫХ ЦИТАТ
+        // ---------------------------------------------------------------------
+        const quotes = [
+            { text: "Верь в мою веру в тебя!", author: "Камина" },
+            { text: "Мой бур создан для того, чтобы пронзить небеса!", author: "Симон" },
+            { text: "Мы движемся вперед с каждым оборотом бура! Это и есть Спиральная сила!", author: "Симон" },
+            { text: "За кого вы нас держите?!", author: "Команда Дай-Гуррен" },
+            { text: "Если на пути встанет стена — мы её разрушим! Если нет дороги — мы её проложим своими руками!", author: "Камина" },
+            { text: "Не верь в себя. Верь в меня! Верь в Камину, который верит в тебя!", author: "Камина" },
+            { text: "Даже если вселенная отвергнет нас — мы прорвемся сквозь пространство и время!", author: "Симон" },
+            { text: "Мы побеждаем не силой разума, а силой духа! Спиральная сила бесконечна!", author: "Лордгеном" }
+        ];
+
+        function generateQuote() {
+            playDrillSound();
+            const quoteText = document.getElementById("quote-text");
+            const quoteAuthor = document.getElementById("quote-author");
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            
+            quoteText.style.opacity = 0;
+            quoteAuthor.style.opacity = 0;
+            
+            setTimeout(() => {
+                quoteText.innerText = `"${randomQuote.text}"`;
+                quoteAuthor.innerText = `— ${randomQuote.author}`;
+                quoteText.style.opacity = 1;
+                quoteAuthor.style.opacity = 1;
+            }, 180);
+        }
+
+        function copyQuote() {
+            const quoteText = document.getElementById("quote-text").innerText;
+            const quoteAuthor = document.getElementById("quote-author").innerText;
+            navigator.clipboard.writeText(`${quoteText} ${quoteAuthor}`).then(() => {
+                showToast("Цитата скопирована в буфер обмена!");
+            });
+        }
+
+        // ---------------------------------------------------------------------
+        // 6. УЛЬТИМЕЙТ: GIGA DRILL BREAK (ЭФФЕКТ СОТРЯСЕНИЯ И ВСПЫШКИ)
+        // ---------------------------------------------------------------------
+        function triggerGigaDrill() {
+            playUltimateSound();
+            const flash = document.getElementById("giga-flash");
+            document.body.classList.add("screen-shake");
+            flash.classList.add("active");
+
+            showToast("💥 GIGA DRILL BREAK! ТВОЙ БУР ПРОНЗИЛ НЕБЕСА!");
+
+            setTimeout(() => {
+                flash.classList.remove("active");
+            }, 400);
+
+            setTimeout(() => {
+                document.body.classList.remove("screen-shake");
+            }, 700);
+        }
+
+        // ---------------------------------------------------------------------
+        // 7. СИНТЕЗАТОР ЗВУКОВ (WEB AUDIO API)
+        // ---------------------------------------------------------------------
+        let audioCtx;
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playBeepSound() {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(580, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.08);
+            } catch (e) {}
+        }
+
+        function playDrillSound() {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.25);
+                gain.gain.setValueAtTime(0.12, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.25);
+            } catch (e) {}
+        }
+
+        function playUltimateSound() {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(80, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1800, ctx.currentTime + 0.4);
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.5);
+            } catch (e) {}
+        }
+
+        // ---------------------------------------------------------------------
+        // 8. ПЕРЕКЛЮЧЕНИЕ МУЗЫКИ
+        // ---------------------------------------------------------------------
+        function toggleMusic() {
+            const music = document.getElementById("bg-music");
+            const icon = document.getElementById("music-icon");
+            const text = document.getElementById("music-text");
+            const btn = document.getElementById("music-btn");
+
+            if (music.paused) {
+                music.play().then(() => {
+                    icon.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                    text.innerText = "Пауза";
+                    btn.classList.remove("border-spiral-green", "text-spiral-green");
+                    btn.classList.add("border-gurren-red", "text-gurren-red", "bg-gurren-red/15", "shadow-neon-red");
+                    showToast("🎵 Саундтрек: Row Row Fight The Power!");
+                }).catch(err => {
+                    showToast("Нажмите еще раз, чтобы разрешить аудио");
+                });
+            } else {
+                music.pause();
+                icon.innerHTML = '<i class="fa-solid fa-play"></i>';
+                text.innerText = "Саундтрек";
+                btn.classList.remove("border-gurren-red", "text-gurren-red", "bg-gurren-red/15", "shadow-neon-red");
+                btn.classList.add("border-spiral-green", "text-spiral-green");
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // 9. МОБИЛЬНОЕ МЕНЮ
+        // ---------------------------------------------------------------------
+        function toggleMobileMenu() {
+            const menu = document.getElementById("mobile-menu");
+            const icon = document.getElementById("burger-icon");
+            if (menu.classList.contains("hidden")) {
+                menu.classList.remove("hidden");
+                icon.classList.remove("fa-bars");
+                icon.classList.add("fa-xmark");
+            } else {
+                menu.classList.add("hidden");
+                icon.classList.remove("fa-xmark");
+                icon.classList.add("fa-bars");
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // 10. ВСПЛЫВАЮЩИЕ УВЕДОМЛЕНИЯ (TOAST)
+        // ---------------------------------------------------------------------
+        let toastTimeout;
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            const msgElem = document.getElementById("toast-message");
+            if (!toast || !msgElem) return;
+            msgElem.innerText = msg;
+            toast.classList.remove("translate-y-24", "opacity-0");
+            toast.classList.add("translate-y-0", "opacity-100");
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove("translate-y-0", "opacity-100");
+                toast.classList.add("translate-y-24", "opacity-0");
+            }, 3000);
+        }
+
+        // ---------------------------------------------------------------------
+        // 11. ЛОГАРИФМИЧЕСКИЙ ГРАФИК CHART.JS
+        // ---------------------------------------------------------------------
+        function initChart() {
+            const canvasElem = document.getElementById('mechaScaleChart');
+            if (!canvasElem) return;
+            const ctx = canvasElem.getContext('2d');
+            const labels = mechas.map(m => m.name);
+            const heights = mechas.map(m => m.heightMeters);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Логарифмический масштаб (метры)',
+                        data: heights,
+                        borderColor: '#00FF66',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#FF2A2A',
+                        pointBorderColor: '#FFFFFF',
+                        pointHoverRadius: 8,
+                        pointRadius: 6,
+                        fill: true,
+                        backgroundColor: 'rgba(0, 255, 102, 0.08)',
+                        tension: 0.35
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#111119',
+                            titleFont: { family: 'Montserrat', size: 14, weight: 'bold' },
+                            bodyFont: { family: 'Montserrat', size: 12 },
+                            borderColor: '#FF2A2A',
+                            borderWidth: 1.5,
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    const val = context.raw;
+                                    if (val >= 9.46e15) return ` Высота: ${(val / 9.46e15).toFixed(1)} св. лет`;
+                                    if (val >= 1000) return ` Высота: ${(val / 1000).toLocaleString()} км`;
+                                    return ` Высота: ${val} м`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'logarithmic',
+                            grid: { color: 'rgba(255, 255, 255, 0.06)' },
+                            ticks: {
+                                color: '#9CA3AF',
+                                font: { family: 'Chakra Petch', size: 11 },
+                                callback: function(value) {
+                                    if ([1, 10, 1000, 1e6, 1e12, 1e18, 1e24, 1e26].includes(value)) {
+                                        return '10^' + Math.log10(value) + ' м';
+                                    }
+                                    return null;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#9CA3AF', font: { family: 'Space Grotesk', size: 10 }, maxRotation: 45, minRotation: 45 }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ---------------------------------------------------------------------
+        // ИНИЦИАЛИЗАЦИЯ
+        // ---------------------------------------------------------------------
+        document.addEventListener("DOMContentLoaded", () => {
+            renderTabs();
+            renderDetail();
+            initChart();
+            buildEpisodeSelector();
+
+            console.log("%c TENGEN TOPPA GURREN LAGANN ", "background: #FF2A2A; color: #FFF; font-weight: bold; font-size: 16px; padding: 6px;");
+            console.log("%c Мой бур создан, чтобы пронзить небеса! ", "color: #00FF66; font-weight: bold; font-size: 12px;");
+        });
+    </script>
+</body>
+</html>
